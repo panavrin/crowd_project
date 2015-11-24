@@ -6,9 +6,7 @@
 	<div class = "container-fluid">
 		
 		<div class = "row header">
-			      {{> loginButtons}}
-			{{> cm_header}}
-
+			Ver 2. {{> cm_header}}
 		</div>
 
 		<div class = "row-fluid fill2 border_live">
@@ -16,14 +14,14 @@
 				{{> cm_code_editor}}
 			</div>
 			<div class = "col-md-3 col-lg-3 fill border_live"> 
-			 1<!--{{> cm_task_view}}-->
+			 {{> cm_task_view}}
 			</div>
 			<div class = "col-md-3 col-lg-3 fill"> 
 		 		<div class = "row-fluid half_fill border_live">
-					2<!--{{> cm_chat}}-->
+					{{> cm_chat}}
 				</div>
 		 		<div class = "row-fluid half_fill border_live">	
-			 		3<!--{{> cm_runtime}}	-->
+			 		{{> cm_runtime}}
 			 	</div>
 			</div>
 		</div>
@@ -35,20 +33,4 @@
 </template>
 
 
-<template name="cm_header">
-  This is header. 
-</template>
-
-
-<template name="cm_task_view">
-  Hello this is the task_view part
-</template>
-
-<template name="cm_chat">
-  Hello this is the chat view
-</template>
-
-<template name="cm_runtime">
-  Hello this is the runtime
-</template>
 
