@@ -6,7 +6,7 @@
 			</button>
 		</div>
 		<div class = "row">
-			<div class="accordion">
+			<div class="accordion_region">
 			  {{> cm_region}}
 			  {{> cm_region}}
 			</div>
@@ -18,8 +18,9 @@
 
 	<form id="crete_task_form">
 		<fieldset>
+		  	<label for="name"> Region </label>
 			<div class="dropdown">
-				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Select a Region!
+				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id = "cm_dialog_region_dropdown" value = "null">Select a Region!
 				<span class="caret"></span></button>
 				<ul class="dropdown-menu">
 					<li><a href="#">Create a new Region!</a></li>
@@ -29,12 +30,12 @@
 				</ul>
 			</div>
 				
-		  	<label for="name"> Title (make it short and informative!) </label>
-		  	<input type="text" name="name" id="name" placeholder="Name it infomrative and succint!" class="text ui-widget-content ui-corner-all">
+		  	<label for="name"> Title </label>
+		  	<input type="text" name="name" id="cm_dialog_name" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
 		  	<label for="email">Description</label>
-		  	<textarea name="desc" id="desc" placeholder="Write the descirption of the task. " class="text ui-widget-content ui-corner-all" rows="10"></textarea>
+		  	<textarea name="desc" id="cm_dialog_ndesc" placeholder="Write the descirption of the task. " class="text ui-widget-content ui-corner-all" rows="10"></textarea>
 		  	<label for="name"> Deliverable (optional)</label>
-		 	 <input type="text" name="name" id="name" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
+		 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
 		  <!-- Allow form submission with keyboard without duplicating the dialog button -->
 		 	 <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
 		</fieldset>
@@ -47,7 +48,7 @@
 	<h2>
 		<strong> Region 1</strong>
 	</h2>
-	<div class="accordion" >
+	<div class="accordion_task" >
 		{{> cm_task}}
 
 		{{> cm_task}}
@@ -59,7 +60,7 @@
 </template>
 
 <template name="cm_task">
-	<h2><strong> Task 1</strong> - Create Global Variables and I want to see what happens if this is too long</h2>
+	<h3><strong> Task 1</strong> - Create Global Variables and I want to see what happens if this is too long</h3>
 	<div>
 		<p>
 			Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. 
