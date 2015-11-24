@@ -1,0 +1,52 @@
+if (Meteor.isClient) {
+  // counter starts at 0
+  Session.setDefault('counter', 0);
+/*
+     counter: function () {
+      return Session.get('counter');
+    }
+  });
+  
+  Template.hello.events({
+    'click button': function () {
+      // increment the counter when button is clicked
+      Session.set('counter', Session.get('counter') + 1);
+    }
+  });
+  */
+
+
+  Template.cm_code_editor.configAce = function() {
+    ace.setTheme('ace/theme/monokai');
+    ace.setShowPrintMargin(false);
+    alert("this is running")
+    return ace.getSession().setUseWrapMode(true);
+  };
+  
+
+/*
+  Template.cm_code_editor.helpers({
+    docid: function() {
+           console.log("docid call");
+ return Session.get("document");
+    }
+  });
+  */
+
+
+}
+
+if (Meteor.isServer) {
+  Meteor.methods({
+      getDocumentText: function (docid) {
+        var getSnapshot = Meteor.wrapAsync(ShareJS.model.getSnapshot);
+        return getSnapshot(docid).snapshot;
+      }
+  });
+  /*
+  Meteor.startup(function () {
+  });
+  */
+}
+
+
