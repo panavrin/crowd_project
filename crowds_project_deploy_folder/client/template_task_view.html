@@ -1,0 +1,70 @@
+
+<template name="cm_task_view">
+	<div class = "container-fluid">
+		<div class = "row">
+			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat Task
+			</button>
+		</div>
+		<div class = "row">
+			<div class="accordion">
+			  {{> cm_region}}
+			  {{> cm_region}}
+			</div>
+		</div>
+	</div>
+
+	<div id="create_task_dialg" title="Create New Task">
+		<h2 for="name"> Task 2</h2>
+
+	<form id="crete_task_form">
+		<fieldset>
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Select a Region!
+				<span class="caret"></span></button>
+				<ul class="dropdown-menu">
+					<li><a href="#">Create a new Region!</a></li>
+					<li><a href="#">Region1</a></li>
+					<li><a href="#">Region2</a></li>
+					<li><a href="#">Region3</a></li>
+				</ul>
+			</div>
+				
+		  	<label for="name"> Title (make it short and informative!) </label>
+		  	<input type="text" name="name" id="name" placeholder="Name it infomrative and succint!" class="text ui-widget-content ui-corner-all">
+		  	<label for="email">Description</label>
+		  	<textarea name="desc" id="desc" placeholder="Write the descirption of the task. " class="text ui-widget-content ui-corner-all" rows="10"></textarea>
+		  	<label for="name"> Deliverable (optional)</label>
+		 	 <input type="text" name="name" id="name" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
+		  <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		 	 <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		</fieldset>
+	</form>
+	</div>
+
+</template>
+
+<template name="cm_region">
+	<h2>
+		<strong> Region 1</strong>
+	</h2>
+	<div class="accordion" >
+		{{> cm_task}}
+
+		{{> cm_task}}
+
+		{{> cm_task}}
+
+		{{> cm_task}}
+	</div>
+</template>
+
+<template name="cm_task">
+	<h2><strong> Task 1</strong> - Create Global Variables and I want to see what happens if this is too long</h2>
+	<div>
+		<p>
+			Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. 
+		</p>
+	</div>
+</template>
+
+

@@ -1,35 +1,29 @@
 var DEBUG = true;
 
 //version = Meteor.collection("version_number")
-
+if (!Meteor.isClient)
+  console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
 if (Meteor.isClient) {
   // counter starts at 0
   Session.setDefault('counter', 0);
-/*
-     counter: function () {
-      return Session.get('counter');
-    }
-  });
-  
-  Template.hello.events({
-    'click button': function () {
-      // increment the counter when button is clicked
-      Session.set('counter', Session.get('counter') + 1);
-    }
-  });
-  */  
+ 
   Session.setDefault('document', "collab_python_doc");
 
   Template.cm_task_view.onRendered(function () {
   // Use the Packery jQuery plugin
-    console.log("task_on_rendered");
-    this.$('.task-wrapper').dialog();
+    if(DEBUG) console.log("task_on_rendered");
+    $( ".accordion" ).accordion({
+      collapsible: true,
+      heightStyle: "content",
+      active:false,
+      header:"h2"
+    });
   });
 
   Template.cm_code_editor.helpers({
     config: function() {
       return function(cm) {
-        if (DEBUG) {console.log("config function running");}
+        if (DEBUG) {console.log("codemirror config function running");}
         cm.setOption("theme", "default");
         cm.setOption("lineNumbers", true);
         cm.setOption("lineWrapping", true);
@@ -46,6 +40,36 @@ if (Meteor.isClient) {
 
   });
 
+  Template.cm_task_view.onRendered(function(){
+    dialog = $( "#create_task_dialg" ).dialog({
+      autoOpen: false,
+      height: "auto",
+      width: 600,
+      modal: true,
+      buttons: {
+        "Create a Task": function(){
+          console.log("a task should be created")
+        },
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        $("#crete_task_form")[0].reset();
+        allFields.removeClass( "ui-state-error" );
+      }
+    });
+  });
+
+  Template.cm_task_view.events({
+    "click #btn_creat_task": function (event) {
+      dialog.dialog( "open" );
+    }
+  });
+
+  Template.cm_code_editor.helpers({
+
+  });
 /*
   Template.cm_code_editor.helpers({
     docid: function() {
