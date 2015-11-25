@@ -1,5 +1,7 @@
 if (Meteor.isServer) {
+  Messages = new Meteor.Collection("messages");
   console.log("server js code is running");
+
   Meteor.publish("tasks", function () {
     return Tasks.find({});
   });
@@ -7,9 +9,9 @@ if (Meteor.isServer) {
   Meteor.publish("regions", function () {
     return Regions.find({});
   });
-  
+
   Meteor.startup(function () {
-    
+
   });
 
 }

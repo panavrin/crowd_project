@@ -23,9 +23,9 @@ if (Meteor.isClient) {
 
   _sendMessage = function() {
     var el = document.getElementById("msg");
-    console.log("hit "+el);
+    console.log(Meteor.user().username);
     Messages.insert({user: Meteor.user().username, msg: el.value, ts: new Date(), room: Session.get("roomname")});
-    el.value = "";
+    // el.value = "";
     el.focus();
   };
 

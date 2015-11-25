@@ -4,7 +4,7 @@
 
         {{#if currentUser}}
           {{> input}}
-
+          {{> messages}}
         {{else}}
         <div>
             <p>Please login!</p>
@@ -20,7 +20,7 @@
 </template>
 
 <template name="messages">
-    <div id="messages" style="background-color: #ffffff; border: 2px solid darkgray; max-height: 200px; overflow: auto">
+  <div id="messages" style="background-color: #ffffff; border: 1px solid darkgray; max-height: 200px; overflow: auto">
         {{#each messages}}
             {{> message}}
         {{/each}}
