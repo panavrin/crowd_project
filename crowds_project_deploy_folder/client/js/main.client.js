@@ -3,10 +3,27 @@ var DEBUG = true;
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
   console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
+
 if (Meteor.isClient) {
+
+  Meteor.subscribe("tasks");
+  Meteor.subscribe("regions");
+
+  Template.registerHelper("tasksinregion", function(region){
+      return Tasks.find( {region:{$eq:region}}, sorted:{});
+  });
+
+  Template.registerHelper("alltasks", function(region){
+      return Tasks.find({});
+  });
+
+  Template.registerHelper("allregions", function(region){
+      return Regions.find({});
+  });
+
+
+
   // counter starts at 0
-  Session.setDefault('counter', 0);
- 
   Session.setDefault('document', "collab_python_doc");
 
   Template.cm_task_view.onRendered(function () {
@@ -54,13 +71,20 @@ if (Meteor.isClient) {
 
   Template.cm_task_view.onRendered(function(){
 
-
-
+    var region = $("#cm_dialog_region_dropdown_btn"),
     title = $( "#cm_dialog_title" ),
     deliverable = $( "#cm_dialog_delverbale" ),
     desc = $( "#cm_dialog_desc" ),
-    allFields = $( [] ).add( title ).add( desc ).add( deliverable );
-    
+    allFields = $( [] ).add(region).add( title ).add( desc ).add( deliverable );
+    tips = $( ".validateTips" );
+
+    $(".dropdown-menu li a").click(function (event) {
+      if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
+      $("#cm_dialog_region_dropdown_btn").text($(this).text());
+      $("#cm_dialog_region_dropdown_btn").val($(this).text());
+      $(this).next('ul').toggle();
+    });
+
     function updateTips( t ) {
       tips
         .text( t )
@@ -80,15 +104,24 @@ if (Meteor.isClient) {
         return true;
       }
     }
- 
+
+    function checkRegion(o){
+      if (o.val() == "null"){
+        o.addClass( "ui-state-error" );
+        updateTips( "You MUST select the region associated with the task." );
+        return false;
+      }
+      return true;
+    }
+
     addTask = function(){
       var valid = true;
       allFields.removeClass( "ui-state-error" );
- 
+
+      valid = valid &&  checkRegion($("#cm_dialog_region_dropdown_btn"));
       valid = valid && checkLength(title, "Title", 5, 140);
-      valid = valid && checkLength(desc, "Desc", 0, 1500);
-      valid = valid &&  ($("#cm_dialog_region_dropdown").val() == "null")
-      
+      valid = valid && checkLength(desc, "Description", 10, 500);
+
       if (valid){
         // add task
         return true;
@@ -96,18 +129,18 @@ if (Meteor.isClient) {
       return false;
     }
 
-
     dialog = $( "#create_task_dialg" ).dialog({
       autoOpen: false,
       height: "auto",
       width: 600,
       modal: true,
+      position: {of: "#cm_code_editor"},
       buttons: {
         "Create a Task": function(){
-          if(addUser())
+          if(addTask()){
             console.log("a task should be created")
-          else 
             dialog.dialog("close");
+          }
         },
         Cancel: function() {
           dialog.dialog( "close" );
@@ -116,7 +149,8 @@ if (Meteor.isClient) {
       close: function() {
         if (DEBUG) console.log("dialog closed");
         $("#crete_task_form")[0].reset();
-        $("#cm_dialog_region_dropdown").val("null");
+        $("#cm_dialog_region_dropdown_btn").val("null");
+        $("#cm_dialog_region_dropdown_btn").text("Create New Task");
         allFields.removeClass( "ui-state-error" );
       }
     });
@@ -124,12 +158,8 @@ if (Meteor.isClient) {
 
   Template.cm_task_view.events({
     "click #btn_creat_task": function (event) {
+      if(DEBUG) console.log("Create new task button clicked");
       dialog.dialog( "open" );
-    },
-    "click .dropdown li a": function (event) {
-      $("#cm_dialog_region_dropdown").text($(this).text());
-      $("#cm_dialog_region_dropdown").val($(this).text());
-      $(this).next('ul').toggle();
     }
   });
 
@@ -150,7 +180,3 @@ if (Meteor.isClient) {
   });
 
 }
-
-
-
-
