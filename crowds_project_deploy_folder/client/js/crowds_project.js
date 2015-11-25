@@ -10,14 +10,14 @@ if (Meteor.isClient) {
       return Session.get('counter');
     }
   });
-  
+
   Template.hello.events({
     'click button': function () {
       // increment the counter when button is clicked
       Session.set('counter', Session.get('counter') + 1);
     }
   });
-  */  
+  */
   Session.setDefault('document', "collab_python_doc");
 
   Template.cm_task_view.onRendered(function () {
@@ -54,13 +54,9 @@ if (Meteor.isClient) {
     }
   });
   */
-
-  Accounts.ui.config({
-    passwordSignupFields: "USERNAME_ONLY"
-  });
+  //
+  // Accounts.ui.config({
+  //   passwordSignupFields: "USERNAME_ONLY"
+  // });
 
 }
-
-
-
-

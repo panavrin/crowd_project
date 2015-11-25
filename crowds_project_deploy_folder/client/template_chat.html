@@ -1,4 +1,62 @@
 
-<template name="cm_chat">
-  Hello this is the chat view. I think Yan will do a good job here. 
+<template name="chat">
+    <div >
+
+        <!-- <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <ul class="nav pull-right">
+                    <li><a href="http://www.meteor.com" target="_blank">Meteor release {{release}}</a></li>
+                    <li><a>{{> loginButtons align="right"}}</a></li>
+                </ul>
+            </div>
+        </div> -->
+
+        <!-- {{#if currentUser}} -->
+
+
+                {{> input}}
+
+
+                {{> messages}}
+
+
+        <!-- {{else}}
+        <div class="hero-unit">
+            <h1>Welcome to MeteorChat</h1>
+            <p>Please login!</p>
+        </div>
+        {{/if}} -->
+
+    </div>
+</template>
+
+<template name="input">
+    <input type="text" id="msg" placeholder="Your message goes here..." style="width: 50px; margin-bottom: 0px">
+    <input type="button" value="Send message" >
+</template>
+
+<template name="messages">
+    <h4 style="width: 200px">Room: {{roomname}}</h4>
+    <div id="messages" style="background-color: #ffffff; width: 200px; border: 1px solid darkgray; max-height: 200px; overflow: auto">
+        {{#each messages}}
+            {{> message}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="message">
+    <p><strong>{{user}}</strong> <span style="font-size: 0.7em; color: darkgray">({{timestamp}})</span>: <i>{{msg}}</i></p>
+</template>
+
+<template name="rooms">
+    <h4>Join a room:</h4>
+    <ul>
+    {{#each rooms}}
+        {{> room}}
+    {{/each}}
+    </ul>
+</template>
+
+<template name="room">
+    <li style="cursor: pointer; {{roomstyle}}">{{roomname}}</li>
 </template>
