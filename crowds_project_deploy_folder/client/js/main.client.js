@@ -1,5 +1,5 @@
 var DEBUG = true;
-
+ace_editor = null;
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
   console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
@@ -21,9 +21,6 @@ if (Meteor.isClient) {
       return Regions.find({});
   });
 
-
-
- 
   Template.cm_task_view.onRendered(function () {
   // Use the Packery jQuery plugin
     if(DEBUG) console.log("task_on_rendered");
@@ -42,9 +39,12 @@ if (Meteor.isClient) {
     });
   });
 
+
+
   Template.cm_code_editor.helpers({
     config: function() {
       return function(ace) {
+        ace_editor = ace;
         /*
         if (DEBUG) {console.log("codemirror config function running");}
         cm.setOption("theme", "default");
@@ -53,10 +53,26 @@ if (Meteor.isClient) {
         cm.setOption("smartIndent", true);
         cm.setOption("mode", "text/x-python");
         return cm.setOption("indentWithTabs", true);*/
-        ace.setTheme('ace/theme/monokai')
+        ace.setTheme('ace/theme/terminal')
         ace.getSession().setMode("ace/mode/python");
         ace.setShowPrintMargin(false)
         ace.getSession().setUseWrapMode(true)
+        ace.getSession().on('changeScrollTop', function(scroll) {
+          var gutterStart = $("#editor .ace_gutter :first-child");
+          var firstLine = gutterStart.children().first();
+          var numFirstLine = parseInt(firstLine.text());
+          var lineHeight = firstLine.css("height");
+          var margin_top = gutterStart.css("margin-top");
+          lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
+          margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
+
+          var regionStartLine = 7; // for example
+          var regionEndLine  = 14;
+          $(".region").each(function(){
+            $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
+          });
+
+        });
       };
     },
     setMode: function(){

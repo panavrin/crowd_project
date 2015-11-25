@@ -22,12 +22,13 @@ fieldset .margin-top{
   position:absolute;
   top:96px;
   left:0px;
-  height:32px;
-  width:100%;
-  opacity:0.1;
+  height:144px;
+  width:98%;
   pointer-events:none;          /* THIS IS THE TRICK YOU SEEK */
   z-index:10;
-  background:#ffffff;
+  border: 2px solid rgba(110,255,74,1.0);
+  border-radius : 16px;
+  background:rgba(0,0,0,0.1);;
 }
 
 #cm_code_editor{
