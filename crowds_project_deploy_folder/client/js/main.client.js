@@ -10,7 +10,7 @@ if (Meteor.isClient) {
   Meteor.subscribe("regions");
 
   Template.registerHelper("tasksinregion", function(region){
-      return Tasks.find( {region:{$eq:region}}, sorted:{});
+     // return Tasks.find( {region:{$eq:region}}, sorted:{});
   });
 
   Template.registerHelper("alltasks", function(region){
@@ -104,7 +104,6 @@ if (Meteor.isClient) {
       }
     }
 
-<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
     function checkRegion(o){
       if (o.val() == "null"){
         o.addClass( "ui-state-error" );
@@ -113,22 +112,13 @@ if (Meteor.isClient) {
       }
       return true;
     }
-
-=======
->>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
     addTask = function(){
       var valid = true;
       allFields.removeClass( "ui-state-error" );
 
-<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
       valid = valid &&  checkRegion($("#cm_dialog_region_dropdown_btn"));
       valid = valid && checkLength(title, "Title", 5, 140);
       valid = valid && checkLength(desc, "Description", 10, 500);
-=======
-      valid = valid && checkLength(title, "Title", 5, 140);
-      valid = valid && checkLength(desc, "Desc", 0, 1500);
-      valid = valid &&  ($("#cm_dialog_region_dropdown").val() == "null")
->>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
 
       if (valid){
         // add task
@@ -147,10 +137,6 @@ if (Meteor.isClient) {
         "Create a Task": function(){
           if(addTask()){
             console.log("a task should be created")
-<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
-=======
-          else
->>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
             dialog.dialog("close");
           }
         },

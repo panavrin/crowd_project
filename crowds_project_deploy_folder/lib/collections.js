@@ -16,7 +16,7 @@ Meteor.methods({
       createdAt: now,
       region: _region_id,
       owner: Meteor.userId(),
-      username: Meteor.user().username
+      username: Meteor.user().username,
       state: _state, // state can be : open, available, locked, 
       updatedAt: now
     });
