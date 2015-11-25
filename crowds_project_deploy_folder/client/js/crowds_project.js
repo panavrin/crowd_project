@@ -6,7 +6,7 @@ if (!Meteor.isClient)
 if (Meteor.isClient) {
   // counter starts at 0
   Session.setDefault('counter', 0);
-<<<<<<< HEAD
+
 /*
      counter: function () {
       return Session.get('counter');
@@ -20,9 +20,7 @@ if (Meteor.isClient) {
     }
   });
   */
-=======
- 
->>>>>>> 4840a3f19f21a8ceb4ec391dc4095e947b2a9ee4
+
   Session.setDefault('document', "collab_python_doc");
 
   Template.cm_task_view.onRendered(function () {
@@ -76,7 +74,7 @@ if (Meteor.isClient) {
     deliverable = $( "#cm_dialog_delverbale" ),
     desc = $( "#cm_dialog_desc" ),
     allFields = $( [] ).add( title ).add( desc ).add( deliverable );
-    
+
     function updateTips( t ) {
       tips
         .text( t )
@@ -96,15 +94,15 @@ if (Meteor.isClient) {
         return true;
       }
     }
- 
+
     addTask = function(){
       var valid = true;
       allFields.removeClass( "ui-state-error" );
- 
+
       valid = valid && checkLength(title, "Title", 5, 140);
       valid = valid && checkLength(desc, "Desc", 0, 1500);
       valid = valid &&  ($("#cm_dialog_region_dropdown").val() == "null")
-      
+
       if (valid){
         // add task
         return true;
@@ -122,7 +120,7 @@ if (Meteor.isClient) {
         "Create a Task": function(){
           if(addUser())
             console.log("a task should be created")
-          else 
+          else
             dialog.dialog("close");
         },
         Cancel: function() {
