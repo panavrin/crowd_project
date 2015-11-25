@@ -18,6 +18,22 @@ fieldset .margin-top{
 	margin-top: 10px;
 }
 
+.region {
+  position:absolute;
+  top:96px;
+  left:0px;
+  height:32px;
+  width:100%;
+  opacity:0.1;
+  pointer-events:none;          /* THIS IS THE TRICK YOU SEEK */
+  z-index:10;
+  background:#ffffff;
+}
+
+#cm_code_editor{
+  padding : 0px;
+}
+
 label{
 	margin:5px;
 }
@@ -29,7 +45,7 @@ textarea{
 	width:95%;
 }
 
-.row{ 
+.row{
 	width:inherit;
 	padding:5px;
 }
@@ -40,8 +56,8 @@ textarea{
 }
 
 #cm_create_task_dialg{
-	font-size:14px;	
-	font-family: arial;	
+	font-size:14px;
+	font-family: arial;
 }
 
 .shareJSCM{
