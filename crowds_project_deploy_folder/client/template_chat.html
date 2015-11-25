@@ -1,4 +1,45 @@
 
-<template name="cm_chat">
-  Hello this is the chat view. I think Yan will do a good job here. 
+<template name="chat">
+    <div class="container">
+
+        {{#if currentUser}}
+          {{> input}}
+
+        {{else}}
+        <div>
+            <p>Please login!</p>
+        </div>
+        {{/if}}
+
+    </div>
+</template>
+
+<template name="input">
+    <input type="text" id="msg" placeholder="Your message goes here..." style="width: 200px; margin-bottom: 0px">
+    <input type="button" value="Send message" class="btn btn-primary sendMsg">
+</template>
+
+<template name="messages">
+    <div id="messages" style="background-color: #ffffff; border: 2px solid darkgray; max-height: 200px; overflow: auto">
+        {{#each messages}}
+            {{> message}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="message">
+    <p><strong>{{user}}</strong> <span style="font-size: 0.7em; color: darkgray">({{timestamp}})</span>: <i>{{msg}}</i></p>
+</template>
+
+<template name="rooms">
+    <h4>Join a room:</h4>
+    <ul>
+    {{#each rooms}}
+        {{> room}}
+    {{/each}}
+    </ul>
+</template>
+
+<template name="room">
+    <li style="cursor: pointer; {{roomstyle}}">{{roomname}}</li>
 </template>

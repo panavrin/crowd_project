@@ -23,9 +23,7 @@ if (Meteor.isClient) {
 
 
 
-  // counter starts at 0
-  Session.setDefault('document', "collab_python_doc");
-
+ 
   Template.cm_task_view.onRendered(function () {
   // Use the Packery jQuery plugin
     if(DEBUG) console.log("task_on_rendered");
@@ -85,6 +83,7 @@ if (Meteor.isClient) {
       $(this).next('ul').toggle();
     });
 
+
     function updateTips( t ) {
       tips
         .text( t )
@@ -105,6 +104,7 @@ if (Meteor.isClient) {
       }
     }
 
+<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
     function checkRegion(o){
       if (o.val() == "null"){
         o.addClass( "ui-state-error" );
@@ -114,13 +114,21 @@ if (Meteor.isClient) {
       return true;
     }
 
+=======
+>>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
     addTask = function(){
       var valid = true;
       allFields.removeClass( "ui-state-error" );
 
+<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
       valid = valid &&  checkRegion($("#cm_dialog_region_dropdown_btn"));
       valid = valid && checkLength(title, "Title", 5, 140);
       valid = valid && checkLength(desc, "Description", 10, 500);
+=======
+      valid = valid && checkLength(title, "Title", 5, 140);
+      valid = valid && checkLength(desc, "Desc", 0, 1500);
+      valid = valid &&  ($("#cm_dialog_region_dropdown").val() == "null")
+>>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
 
       if (valid){
         // add task
@@ -139,6 +147,10 @@ if (Meteor.isClient) {
         "Create a Task": function(){
           if(addTask()){
             console.log("a task should be created")
+<<<<<<< HEAD:crowds_project_deploy_folder/client/js/main.client.js
+=======
+          else
+>>>>>>> origin/master:crowds_project_deploy_folder/client/js/crowds_project.js
             dialog.dialog("close");
           }
         },
@@ -174,9 +186,9 @@ if (Meteor.isClient) {
     }
   });
   */
-
-  Accounts.ui.config({
-    passwordSignupFields: "USERNAME_ONLY"
-  });
+  //
+  // Accounts.ui.config({
+  //   passwordSignupFields: "USERNAME_ONLY"
+  // });
 
 }

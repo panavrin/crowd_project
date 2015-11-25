@@ -45,6 +45,7 @@ localstorage@1.0.5
 logging@1.0.8
 meteor@1.1.10
 meteor-base@1.0.1
+meteor-platform@1.2.3
 minifiers@1.1.7
 minimongo@1.0.10
 mizzao:build-fetcher@0.2.0
@@ -75,6 +76,7 @@ sha@1.0.4
 spacebars@1.0.7
 spacebars-compiler@1.0.7
 srp@1.0.4
+standard-app-packages@1.0.6
 standard-minifiers@1.0.2
 templating@1.1.5
 templating-tools@1.0.0
