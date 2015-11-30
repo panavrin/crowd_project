@@ -2,6 +2,12 @@ ace_editor = null;
 minNumLineRegion = 5;
 editor_rendered = false;
 accordionRegionRenedered = false;
+
+title_store="";
+desc_store="";
+deliverable_store="";
+region_store="";
+
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
   console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
@@ -162,6 +168,7 @@ if (Meteor.isClient) {
 
   function dropDownClickHandler(event){
     if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
+
     if($(this).attr("value") == "new"){
       $(".new_region").removeClass("hidden");
       dialog.dialog( "close" );
@@ -172,6 +179,7 @@ if (Meteor.isClient) {
       $("#cm_dialog_region_dropdown_btn").val($(this).text());
       $(this).next('ul').toggle();
     }
+    region_store= $(this).text();
   }
   Template.cm_task_view.onRendered(function(){
     if(DEBUG)console.log(" cm_task_view onRendered");
@@ -184,6 +192,12 @@ if (Meteor.isClient) {
     tips = $( ".validateTips" );
 
     $(".dropdown-menu li a").click(dropDownClickHandler);
+
+
+//call this
+// function (_title, _desc, _deliverable, _region_id) {
+  //
+
 
     function updateTips( t ) {
       tips
@@ -213,6 +227,7 @@ if (Meteor.isClient) {
       }
       return true;
     }
+
     addTask = function(){
       var valid = true;
       allFields.removeClass( "ui-state-error" );
@@ -223,6 +238,19 @@ if (Meteor.isClient) {
 
       if (valid){
         // add task
+        title_store = $("#cm_dialog_title").val();
+        desc_store = $("#cm_dialog_desc").val();
+        deliverable_store = $("#cm_dialog_delverbale").val();
+
+
+        Meteor.call('addTask', title_store, desc_store, deliverable_store, region_store, function (error, result) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(result);
+          }
+        });
+        
         return true;
       }
       return false;
@@ -261,14 +289,6 @@ if (Meteor.isClient) {
 
   Template.cm_task_view.events({
     "click #btn_creat_task": function (event) {
-      // {{#if currentUser}}
-      //   {{> input}}
-      //   {{> messages}}
-      // {{else}}
-      // <div>
-      //     <p>Please login!</p>
-      // </div>
-      // {{/if}}
 
       if (Meteor.user()== null)
         alert("Sign up please!")

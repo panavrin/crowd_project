@@ -7,6 +7,7 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
+    console.log(_title);
     var now = new Date();
     Tasks.insert({
       title: _title,
@@ -16,9 +17,11 @@ Meteor.methods({
       region: _region_id,
       owner: Meteor.userId(),
       username: Meteor.user().username,
-      state: _state, // state can be : open, available, locked,
+      // state: _state, // state can be : open, available, locked,
       updatedAt: now
     });
+
+    //store task data
   },
   deleteTask: function (taskId) {
     var task = Tasks.findOne(taskId);
