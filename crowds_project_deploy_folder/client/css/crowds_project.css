@@ -18,17 +18,37 @@ fieldset .margin-top{
 	margin-top: 10px;
 }
 
-.region {
+.hidden {
+    display: none;
+}
+
+.region{
   position:absolute;
-  top:96px;
+  top:0px;
   left:0px;
-  height:144px;
-  width:98%;
-  pointer-events:none;          /* THIS IS THE TRICK YOU SEEK */
-  z-index:10;
-  border: 2px solid rgba(110,255,74,1.0);
+  height:0px;
+  width:100%;
+  pointer-events:none;
   border-radius : 16px;
+  text-align : right;
   background:rgba(0,0,0,0.1);;
+}
+
+.new_region{
+  z-index:10;
+  border: 1px solid rgba(255,255,74,1.0);
+}
+
+.region button{
+  pointer-events:auto;
+  margin-top:4px;
+  padding:2px 10px;
+  color:black;
+}
+
+.existing_region {
+  z-index:5;
+  border: 2px solid rgba(110,255,74,1.0);
 }
 
 #cm_code_editor{

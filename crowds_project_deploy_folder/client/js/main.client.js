@@ -1,5 +1,6 @@
-var DEBUG = true;
 ace_editor = null;
+minNumLineRegion = 5;
+editor_rendered = false;
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
   console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
@@ -39,11 +40,11 @@ if (Meteor.isClient) {
     });
   });
 
-
-
   Template.cm_code_editor.helpers({
     config: function() {
       return function(ace) {
+        if(DEBUG)console.log("config");
+
         ace_editor = ace;
         /*
         if (DEBUG) {console.log("codemirror config function running");}
@@ -57,33 +58,76 @@ if (Meteor.isClient) {
         ace.getSession().setMode("ace/mode/python");
         ace.setShowPrintMargin(false)
         ace.getSession().setUseWrapMode(true)
+        regionUpdated = true;
+
         ace.getSession().on('changeScrollTop', function(scroll) {
+          regionUpdated = true;
+        });
+
+        updateRegions = function(){
           var gutterStart = $("#editor .ace_gutter :first-child");
           var firstLine = gutterStart.children().first();
           var numFirstLine = parseInt(firstLine.text());
-          var lineHeight = firstLine.css("height");
           var margin_top = gutterStart.css("margin-top");
+          lineHeight = firstLine.css("height");
           lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
+
           margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
+          console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
 
-          var regionStartLine = 7; // for example
-          var regionEndLine  = 14;
           $(".region").each(function(){
+            console.log("region");
             $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
+            $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
           });
+        }
 
+        ace.renderer.on("afterRender", function(e) {
+          editor_rendered = true;
+          if (regionUpdated) {
+            updateRegions();
+          }
+          regionUpdated = false;
         });
       };
     },
     setMode: function(){
       return function(editor){
-        console.log("when is it running?");
+        ace_editor.setReadOnly(true);
+        ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
+        if(DEBUG)console.log("setMode");
       }
     }
-
   });
 
+  Template.cm_region.onRendered(function(){
+    if (editor_rendered){
+      updateRegions();
+  /*    $(".region").each(function(){
+        console.log("region");
+        $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start"))  + 1))) + "px");
+      });*/
+    }
+  })
+
+  Template.cm_regions.events({
+      "click .new_region button": function (event) {
+        var start = parseInt($(event.target).attr("start")),
+        end = parseInt($(event.target).attr("end"));
+
+        if(DEBUG) console.log("click #new_region button:("+ start + ","+ end+")");
+        // insert region and open the dialog again.
+        Meteor.call("addRegion", start, start + minNumLineRegion);
+        // programmtically add lines
+        $(".new_region").addClass("hidden");
+
+      }
+    });
+
+
+
   Template.cm_task_view.onRendered(function(){
+    if(DEBUG)console.log(" cm_task_view onRendered");
 
     var region = $("#cm_dialog_region_dropdown_btn"),
     title = $( "#cm_dialog_title" ),
@@ -94,9 +138,17 @@ if (Meteor.isClient) {
 
     $(".dropdown-menu li a").click(function (event) {
       if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
-      $("#cm_dialog_region_dropdown_btn").text($(this).text());
-      $("#cm_dialog_region_dropdown_btn").val($(this).text());
-      $(this).next('ul').toggle();
+      if($(this).attr("value") == "new"){
+        $(".new_region").removeClass("hidden");
+        dialog.dialog( "close" );
+        dialog.dialog( "option", "modal", true );
+        $(this).next('ul').toggle();
+      }
+      else{
+        $("#cm_dialog_region_dropdown_btn").text($(this).text());
+        $("#cm_dialog_region_dropdown_btn").val($(this).text());
+        $(this).next('ul').toggle();
+      }
     });
 
 
@@ -148,7 +200,7 @@ if (Meteor.isClient) {
       height: "auto",
       width: 600,
       modal: true,
-      position: {of: "#cm_code_editor"},
+      position: {of: "#cm_right_pane"},
       buttons: {
         "Create a Task": function(){
           if(addTask()){

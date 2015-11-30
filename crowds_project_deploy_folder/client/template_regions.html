@@ -1,0 +1,17 @@
+<template name="cm_regions">
+  <div class = "region new_region hidden" start = 2 end = 2>
+    <button class = "btn btn-warning" start = 2 end = 2> Create New Region Here. ↑</button>
+  </div>
+{{#each allregions}}
+  {{> cm_region}}
+{{/each}}
+</template>
+
+<template name="cm_region">
+  <div class = "region existing_region" start = "{{start}}" end = "{{end}}">
+    Look at my beautiful region1 {{name}} (created by {{_id}})!
+  </div>
+  <div class = "region new_region hidden" start = {{end}} end = {{end}}>
+    <button class = "btn btn-warning" start = {{end}} end = {{end}}>Create New Region Here. ↑</button>
+  </div>
+</template>

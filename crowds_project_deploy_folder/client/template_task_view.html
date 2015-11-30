@@ -7,8 +7,8 @@
 		</div>
 		<div class = "row">
 			<div class="accordion_region">
-			  {{> cm_region}}
-			  {{> cm_region}}
+			  {{> cm_region_task_list}}
+			  {{> cm_region_task_list}}
 			</div>
 		</div>
 	</div>
@@ -23,7 +23,7 @@
 				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id = "cm_dialog_region_dropdown_btn" value = "null">Select a Region!
 				<span class="caret"></span></button>
 				<ul class="dropdown-menu">
-					<li><a href="#">Create New Region!</a></li>
+					<li><a href="#" value="new">Create New Region!</a></li>
 					<li><a href="#">Region1</a></li>
 					<li><a href="#">Region2</a></li>
 					<li><a href="#">Region3</a></li>
@@ -44,7 +44,7 @@
 
 </template>
 
-<template name="cm_region">
+<template name="cm_region_task_list">
 	<h2>
 		<strong> Region 1</strong>
 	</h2>
