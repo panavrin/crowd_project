@@ -41,7 +41,7 @@ Meteor.methods({
 
     Tasks.update(taskId, { $set: { checked: setChecked} });
   },
-  addRegion: function (_start, _end) {
+  addRegion: function (_start, _end, _name) {
     if(DEBUG)console.log("Server:" + Meteor.isServer + " addRegion:("+_start+","+_end+")");
 
     // Make sure the user is logged in before inserting a task
@@ -55,7 +55,7 @@ Meteor.methods({
     });
 
     Regions.insert({
-      name: "test",
+      name: _name,
       start: _start,
       end:_end,
       createdAt: now,
@@ -66,8 +66,6 @@ Meteor.methods({
     });
     // update other region's start/end numbers
     //console.log(Tasks.find({ start: {$gt: _end}}));
-
-
   }
 /*  shiftRegion: function () {
     // Make sure the user is logged in before inserting a task

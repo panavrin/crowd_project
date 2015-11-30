@@ -7,8 +7,9 @@
 		</div>
 		<div class = "row">
 			<div class="accordion_region">
-			  {{> cm_region_task_list}}
-			  {{> cm_region_task_list}}
+				{{#each allregions}}
+				  {{> cm_region_task_list}}
+				{{/each}}
 			</div>
 		</div>
 	</div>
@@ -24,9 +25,9 @@
 				<span class="caret"></span></button>
 				<ul class="dropdown-menu">
 					<li><a href="#" value="new">Create New Region!</a></li>
-					<li><a href="#">Region1</a></li>
-					<li><a href="#">Region2</a></li>
-					<li><a href="#">Region3</a></li>
+					{{#each allregions}}
+					  <li><a href="#" value = {{name}}>Region {{name}}</a></li>
+					{{/each}}
 				</ul>
 			</div>
 
@@ -46,9 +47,9 @@
 
 <template name="cm_region_task_list">
 	<h2>
-		<strong> Region 1</strong>
+		<strong> Region {{name}}</strong>
 	</h2>
-	<div class="accordion_task" >
+		<div class="accordion_task not-rendered" >
 		{{> cm_task}}
 
 		{{> cm_task}}

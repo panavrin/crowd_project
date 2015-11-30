@@ -29,7 +29,7 @@ fieldset .margin-top{
   height:0px;
   width:100%;
   pointer-events:none;
-  border-radius : 16px;
+  border-radius : 12px;
   text-align : right;
   background:rgba(0,0,0,0.1);;
 }
@@ -48,7 +48,7 @@ fieldset .margin-top{
 
 .existing_region {
   z-index:5;
-  border: 2px solid rgba(110,255,74,1.0);
+  border: 1px solid rgba(110,255,74,1.0);
 }
 
 #cm_code_editor{

@@ -1,6 +1,7 @@
 ace_editor = null;
 minNumLineRegion = 5;
 editor_rendered = false;
+accordionRegionRenedered = false;
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
   console.log("crowd_projects.js Error: Meteor.isClient:"+ Meteor.isClient)
@@ -14,12 +15,12 @@ if (Meteor.isClient) {
      // return Tasks.find( {region:{$eq:region}}, sorted:{});
   });
 
-  Template.registerHelper("alltasks", function(region){
+  Template.registerHelper("alltasks", function(){
       return Tasks.find({});
   });
 
-  Template.registerHelper("allregions", function(region){
-      return Regions.find({});
+  Template.registerHelper("allregions", function(){
+      return Regions.find({},{sort: {start: 1}});
   });
 
   Template.cm_task_view.onRendered(function () {
@@ -31,13 +32,16 @@ if (Meteor.isClient) {
       active:false,
       header:"h2"
     });
-
-    $( ".accordion_task" ).accordion({
+    accordionRegionRenedered = true;
+    $( ".accordion_task.not-rendered" ).accordion({
       collapsible: true,
       heightStyle: "content",
       active:false,
       header:"h3"
     });
+
+    $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
+
   });
 
   Template.cm_code_editor.helpers({
@@ -94,11 +98,31 @@ if (Meteor.isClient) {
     setMode: function(){
       return function(editor){
         ace_editor.setReadOnly(true);
-        ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
+        if (ace_editor.getValue().length==0)
+          ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
         if(DEBUG)console.log("setMode");
       }
     }
   });
+
+  Template.cm_region_task_list.onRendered(function(){
+    $('.accordion_region').accordion("refresh");
+    $(".dropdown-menu li a").click(dropDownClickHandler);
+
+  })
+
+  Template.cm_task.onRendered(function(){
+    $( ".accordion_task.not-rendered" ).accordion({
+      collapsible: true,
+      heightStyle: "content",
+      active:false,
+      header:"h3"
+    });
+
+    $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
+
+    $('.accordion_task').accordion("refresh");
+  })
 
   Template.cm_region.onRendered(function(){
     if (editor_rendered){
@@ -116,16 +140,39 @@ if (Meteor.isClient) {
         end = parseInt($(event.target).attr("end"));
 
         if(DEBUG) console.log("click #new_region button:("+ start + ","+ end+")");
-        // insert region and open the dialog again.
-        Meteor.call("addRegion", start, start + minNumLineRegion);
+        var region_name = chance.first();
+        console.log("region_name(" + region_name + "):" +  (Regions.findOne({name:region_name})== "undefined"));
+        while(  Regions.findOne({name:region_name})!= undefined){
+          region_name = chance.first();
+        }
+        Meteor.call("addRegion", start, start + minNumLineRegion, region_name);
         // programmtically add lines
+        var emptylines = Array(minNumLineRegion).join('.').split('.') ;
+        ace_editor.getSession().doc.insertLines(start,emptylines);
         $(".new_region").addClass("hidden");
+        $('.accordion_region').accordion("refresh");
+        // insert region and open the dialog again.
+        dialog.dialog( "open" );
+        $("#cm_dialog_region_dropdown_btn").text("Region " + region_name);
+        $("#cm_dialog_region_dropdown_btn").val(region_name);
+
 
       }
-    });
+  });
 
-
-
+  function dropDownClickHandler(event){
+    if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
+    if($(this).attr("value") == "new"){
+      $(".new_region").removeClass("hidden");
+      dialog.dialog( "close" );
+      $(this).next('ul').toggle();
+    }
+    else{
+      $("#cm_dialog_region_dropdown_btn").text($(this).text());
+      $("#cm_dialog_region_dropdown_btn").val($(this).text());
+      $(this).next('ul').toggle();
+    }
+  }
   Template.cm_task_view.onRendered(function(){
     if(DEBUG)console.log(" cm_task_view onRendered");
 
@@ -136,21 +183,7 @@ if (Meteor.isClient) {
     allFields = $( [] ).add(region).add( title ).add( desc ).add( deliverable );
     tips = $( ".validateTips" );
 
-    $(".dropdown-menu li a").click(function (event) {
-      if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
-      if($(this).attr("value") == "new"){
-        $(".new_region").removeClass("hidden");
-        dialog.dialog( "close" );
-        dialog.dialog( "option", "modal", true );
-        $(this).next('ul').toggle();
-      }
-      else{
-        $("#cm_dialog_region_dropdown_btn").text($(this).text());
-        $("#cm_dialog_region_dropdown_btn").val($(this).text());
-        $(this).next('ul').toggle();
-      }
-    });
-
+    $(".dropdown-menu li a").click(dropDownClickHandler);
 
     function updateTips( t ) {
       tips
@@ -195,6 +228,12 @@ if (Meteor.isClient) {
       return false;
     }
 
+    function resetDialog(){
+      $("#crete_task_form")[0].reset();
+      $("#cm_dialog_region_dropdown_btn").val("null");
+      $("#cm_dialog_region_dropdown_btn").text("Create New Task");
+      allFields.removeClass( "ui-state-error" );
+    }
     dialog = $( "#create_task_dialg" ).dialog({
       autoOpen: false,
       height: "auto",
@@ -206,18 +245,16 @@ if (Meteor.isClient) {
           if(addTask()){
             console.log("a task should be created")
             dialog.dialog("close");
+            resetDialog();
           }
         },
         Cancel: function() {
           dialog.dialog( "close" );
+          resetDialog();
         }
       },
       close: function() {
         if (DEBUG) console.log("dialog closed");
-        $("#crete_task_form")[0].reset();
-        $("#cm_dialog_region_dropdown_btn").val("null");
-        $("#cm_dialog_region_dropdown_btn").text("Create New Task");
-        allFields.removeClass( "ui-state-error" );
       }
     });
   });
@@ -226,7 +263,20 @@ if (Meteor.isClient) {
     "click #btn_creat_task": function (event) {
       if(DEBUG) console.log("Create new task button clicked");
       dialog.dialog( "open" );
-    }
+    }/*,
+    "click .dropdown-menu li a" : function (event) {
+      if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
+      if($(this).attr("value") == "new"){
+        $(".new_region").removeClass("hidden");
+        dialog.dialog( "close" );
+        $(this).next('ul').toggle();
+      }
+      else{
+        $("#cm_dialog_region_dropdown_btn").text($(this).text());
+        $("#cm_dialog_region_dropdown_btn").val($(this).text());
+        $(this).next('ul').toggle();
+      }
+    }*/
   });
 
   Template.cm_code_editor.helpers({
@@ -244,5 +294,13 @@ if (Meteor.isClient) {
   // Accounts.ui.config({
   //   passwordSignupFields: "USERNAME_ONLY"
   // });
+
+  Meteor.startup(function(){
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/chance/0.5.6/chance.min.js', function(){
+    // script has loaded
+      Session.set('chanceReady', true);
+      if(DEBUG) console.log("chance script imported");
+    });
+  });
 
 }
