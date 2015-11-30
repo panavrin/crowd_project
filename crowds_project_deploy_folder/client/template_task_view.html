@@ -16,31 +16,31 @@
 
 	<div id="create_task_dialg" title="Create New Task">
 		<h2 for="name"> Task 2</h2>
-	<div class="validateTips"></div>
-	<form id="crete_task_form">
-		<fieldset>
-		  	<label for="name"> Region </label>
-			<div class="dropdown">
-				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id = "cm_dialog_region_dropdown_btn" value = "null">Select a Region!
-				<span class="caret"></span></button>
-				<ul class="dropdown-menu">
-					<li><a href="#" value="new">Create New Region!</a></li>
-					{{#each allregions}}
-					  <li><a href="#" value = {{name}}>Region {{name}}</a></li>
-					{{/each}}
-				</ul>
-			</div>
+		<div class="validateTips"></div>
+		<form id="crete_task_form">
+			<fieldset>
+			  	<label for="name"> Region </label>
+					<div class="dropdown">
+						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id = "cm_dialog_region_dropdown_btn" value = "null">Select a Region!
+						<span class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li><a href="#" value="new">Create New Region!</a></li>
+							{{#each allregions}}
+							  <li><a href="#" value = {{name}}>Region {{name}}</a></li>
+							{{/each}}
+						</ul>
+					</div>
 
-		  	<label for="name"> Title (5-140) </label>
-		  	<input type="text" name="name" id="cm_dialog_title" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
-		  	<label for="email">Description (10-500)</label>
-		  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="10"></textarea>
-		  	<label for="name"> Deliverable (optional)</label>
-		 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
-		  <!-- Allow form submission with keyboard without duplicating the dialog button -->
-		 	 <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-		</fieldset>
-	</form>
+			  	<label for="name"> Title (5-140) </label>
+			  	<input type="text" name="name" id="cm_dialog_title" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
+			  	<label for="email">Description (10-500)</label>
+			  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="10"></textarea>
+			  	<label for="name"> Deliverable (optional)</label>
+			 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
+			  <!-- Allow form submission with keyboard without duplicating the dialog button -->
+			 	 <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+			</fieldset>
+		</form>
 	</div>
 
 </template>

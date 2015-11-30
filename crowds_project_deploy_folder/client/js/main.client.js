@@ -261,8 +261,21 @@ if (Meteor.isClient) {
 
   Template.cm_task_view.events({
     "click #btn_creat_task": function (event) {
-      if(DEBUG) console.log("Create new task button clicked");
-      dialog.dialog( "open" );
+      // {{#if currentUser}}
+      //   {{> input}}
+      //   {{> messages}}
+      // {{else}}
+      // <div>
+      //     <p>Please login!</p>
+      // </div>
+      // {{/if}}
+
+      if (Meteor.user()== null)
+        alert("Sign up please!")
+      else{
+        if(DEBUG) console.log("Create new task button clicked");
+        dialog.dialog( "open" );
+      }
     }/*,
     "click .dropdown-menu li a" : function (event) {
       if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
