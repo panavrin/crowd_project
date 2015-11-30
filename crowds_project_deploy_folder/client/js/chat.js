@@ -25,8 +25,8 @@ if (Meteor.isClient) {
     var el = document.getElementById("msg");
     console.log(Meteor.user().username);
     Messages.insert({user: Meteor.user().username, msg: el.value, ts: new Date(), room: Session.get("roomname")});
-    // el.value = "";
-    el.focus();
+    el.value = "";
+    // el.focus();
   };
 
   Template.messages.helpers({
@@ -71,7 +71,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    Messages.remove({});
+    // Messages.remove({});
     Rooms.remove({});
     if (Rooms.find().count() === 0) {
       ["Meteor", "JavaScript", "Reactive", "MongoDB"].forEach(function(r) {
