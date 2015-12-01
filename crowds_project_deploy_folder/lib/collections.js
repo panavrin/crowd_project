@@ -9,7 +9,7 @@ Meteor.methods({
     }
     console.log(_title);
     var now = new Date();
-    Tasks.insert({
+    return Tasks.insert({
       title: _title,
       desc:_desc,
       deliverable:_deliverable,
@@ -30,10 +30,25 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
 
-    Tasks.remove(taskId);
+    return Tasks.remove(taskId);
   },
   updateTask: function(taskId, _title, _desc, _deliverable, _region_id){
-    //  var
+    if (! Meteor.userId()) {
+      throw new Meteor.Error("not-authorized");
+    }
+    if(DEBUG) console.log("updated:" + taskId);
+    var now = new Date();
+    return Tasks.update({_id:taskId},{$set:{
+        title: _title,
+        desc:_desc,
+        deliverable:_deliverable,
+        createdAt: now,
+        region: _region_id,
+        // state: _state, // state can be : open, available, locked,
+        updatedAt: now
+      }
+    });
+
   },
   setChecked: function (taskId, setChecked) {
     var task = Tasks.findOne(taskId);
@@ -42,7 +57,7 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
 
-    Tasks.update(taskId, { $set: { checked: setChecked} });
+    return Tasks.update(taskId, { $set: { checked: setChecked} });
   },
   addRegion: function (_start, _end, _name) {
     if(DEBUG)console.log("Server:" + Meteor.isServer + " addRegion:("+_start+","+_end+")");
@@ -57,7 +72,7 @@ Meteor.methods({
       if(error) console.log(error);
     });
 
-    Regions.insert({
+    return Regions.insert({
       name: _name,
       start: _start,
       end:_end,
