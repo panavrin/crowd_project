@@ -22,6 +22,10 @@ fieldset .margin-top{
     display: none;
 }
 
+.tasks_regions{
+  overflow:auto;
+}
+
 .region{
   position:absolute;
   top:0px;

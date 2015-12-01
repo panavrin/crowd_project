@@ -2,7 +2,7 @@
 <template name="cm_task_view">
 	<div class = "container-fluid">
 		<div class = "row">
-			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat Task
+			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat New Task
 			</button>
 		</div>
 		<div class = "row">
@@ -26,7 +26,7 @@
 						<ul class="dropdown-menu">
 							<li><a href="#" value="new">Create New Region!</a></li>
 							{{#each allregions}}
-							  <li><a href="#" value = {{name}}>Region {{name}}</a></li>
+							  <li><a href="#" value = {{_id}}>Region {{name}}</a></li>
 							{{/each}}
 						</ul>
 					</div>
@@ -50,21 +50,32 @@
 		<strong> Region {{name}}</strong>
 	</h2>
 		<div class="accordion_task not-rendered" >
-		{{> cm_task}}
-
-		{{> cm_task}}
-
-		{{> cm_task}}
-
-		{{> cm_task}}
+			{{#each tasksinregion _id}}
+				{{> cm_task}}
+			{{/each}}
 	</div>
 </template>
-
+<!--    title: _title,
+		desc:_desc,
+		deliverable:_deliverable,
+		createdAt: now,
+		region: _region_id,
+		owner: Meteor.userId(),
+		username: Meteor.user().username,
+		// state: _state, // state can be : open, available, locked,
+		updatedAt: now-->
 <template name="cm_task">
-	<h3><strong> Task 1</strong> - Create Global Variables and I want to see what happens if this is too long</h3>
+	<h3><strong> Task - {{title}} </strong></h3>
 	<div>
 		<p>
-			Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est.
+			<strong>Description</strong>
+			<p>{{desc}}</p>
+		</p>
+		<p>
+			{{#if deliverable}}
+        <strong>Deliverable</strong>
+				<p>{{deliverable}}</p>
+    	{{/if}}
 		</p>
 	</div>
 </template>

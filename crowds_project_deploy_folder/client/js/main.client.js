@@ -3,10 +3,7 @@ minNumLineRegion = 5;
 editor_rendered = false;
 accordionRegionRenedered = false;
 
-title_store="";
-desc_store="";
-deliverable_store="";
-region_store="";
+var Range = require('ace/range').Range;
 
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
@@ -17,8 +14,8 @@ if (Meteor.isClient) {
   Meteor.subscribe("tasks");
   Meteor.subscribe("regions");
 
-  Template.registerHelper("tasksinregion", function(region){
-     // return Tasks.find( {region:{$eq:region}}, sorted:{});
+  Template.registerHelper("tasksinregion", function(region_id){
+      return Tasks.find( {region:region_id}, {sort: {createdAt:-1}});
   });
 
   Template.registerHelper("alltasks", function(){
@@ -35,15 +32,65 @@ if (Meteor.isClient) {
     $( ".accordion_region" ).accordion({
       collapsible: true,
       heightStyle: "content",
-      active:false,
-      header:"h2"
+      active:true,
+      header:"h2",
+      beforeActivate: function(event, ui) {
+           // The accordion believes a panel is being opened
+          if (ui.newHeader[0]) {
+              var currHeader  = ui.newHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+           // The accordion believes a panel is being closed
+          } else {
+              var currHeader  = ui.oldHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+          }
+           // Since we've changed the default behavior, this detects the actual status
+          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+           // Toggle the panel's header
+          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top',!isPanelSelected).attr('aria-selected',((!isPanelSelected).toString()));
+
+          // Toggle the panel's icon
+          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e',isPanelSelected).toggleClass('ui-icon-triangle-1-s',!isPanelSelected);
+
+           // Toggle the panel's content
+          currContent.toggleClass('accordion-content-active',!isPanelSelected)
+          if (isPanelSelected) { currContent.slideUp(); }  else { currContent.slideDown(); }
+
+          return false; // Cancels the default action
+      }
     });
     accordionRegionRenedered = true;
     $( ".accordion_task.not-rendered" ).accordion({
       collapsible: true,
       heightStyle: "content",
-      active:false,
-      header:"h3"
+      active:true,
+      header:"h3",
+      beforeActivate: function(event, ui) {
+           // The accordion believes a panel is being opened
+          if (ui.newHeader[0]) {
+              var currHeader  = ui.newHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+           // The accordion believes a panel is being closed
+          } else {
+              var currHeader  = ui.oldHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+          }
+           // Since we've changed the default behavior, this detects the actual status
+          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+           // Toggle the panel's header
+          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top',!isPanelSelected).attr('aria-selected',((!isPanelSelected).toString()));
+
+          // Toggle the panel's icon
+          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e',isPanelSelected).toggleClass('ui-icon-triangle-1-s',!isPanelSelected);
+
+           // Toggle the panel's content
+          currContent.toggleClass('accordion-content-active',!isPanelSelected)
+          if (isPanelSelected) { currContent.slideUp(); }  else { currContent.slideDown(); }
+
+          return false; // Cancels the default action
+      }
     });
 
     $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
@@ -64,10 +111,10 @@ if (Meteor.isClient) {
         cm.setOption("smartIndent", true);
         cm.setOption("mode", "text/x-python");
         return cm.setOption("indentWithTabs", true);*/
-        ace.setTheme('ace/theme/terminal')
+        ace.setTheme('ace/theme/terminal');
         ace.getSession().setMode("ace/mode/python");
-        ace.setShowPrintMargin(false)
-        ace.getSession().setUseWrapMode(true)
+        ace.setShowPrintMargin(false);
+        ace.getSession().setUseWrapMode(false);
         regionUpdated = true;
 
         ace.getSession().on('changeScrollTop', function(scroll) {
@@ -84,11 +131,15 @@ if (Meteor.isClient) {
 
           margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
           console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
-
+          maxLineNumber = -1;
           $(".region").each(function(){
-            console.log("region");
+            if(DEBUG)console.log("region");
+            var start = parseInt($(this).attr("start")),
+            end = parseInt($(this).attr("end"));
             $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
             $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
+            if (maxLineNumber < end)
+              maxLineNumber = end;
           });
         }
 
@@ -133,12 +184,18 @@ if (Meteor.isClient) {
   Template.cm_region.onRendered(function(){
     if (editor_rendered){
       updateRegions();
-  /*    $(".region").each(function(){
-        console.log("region");
-        $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start"))  + 1))) + "px");
-      });*/
+      if (maxLineNumber < ace_editor.getSession().getLength() ){
+      //  ace_editor.remove(new Range(maxLineNumber+1,0,ace_editor.getSession().getLength(),1000000));
+        ace_editor.selection.moveCursorToPosition({row: maxLineNumber-1, column: 1000000});
+        ace_editor.selection.selectTo(ace_editor.getSession().getLength(),1000000);
+        ace_editor.removeLines();
+        if(DEBUG) alert("lines programtically removed! In general, this should not happen.  ")
+      }
     }
   })
+
+
+
 
   Template.cm_regions.events({
       "click .new_region button": function (event) {
@@ -151,7 +208,17 @@ if (Meteor.isClient) {
         while(  Regions.findOne({name:region_name})!= undefined){
           region_name = chance.first();
         }
-        Meteor.call("addRegion", start, start + minNumLineRegion, region_name);
+
+
+        Meteor.call("addRegion", start, start + minNumLineRegion, region_name, function(error, result){
+            if (error){
+              console.log(error);
+            }
+            else{
+              if(DEBUG) console.log("region_id: :" + result);
+              $("#cm_dialog_region_dropdown_btn").val(result);
+            }
+        });
         // programmtically add lines
         var emptylines = Array(minNumLineRegion).join('.').split('.') ;
         ace_editor.getSession().doc.insertLines(start,emptylines);
@@ -160,7 +227,6 @@ if (Meteor.isClient) {
         // insert region and open the dialog again.
         dialog.dialog( "open" );
         $("#cm_dialog_region_dropdown_btn").text("Region " + region_name);
-        $("#cm_dialog_region_dropdown_btn").val(region_name);
 
 
       }
@@ -176,11 +242,25 @@ if (Meteor.isClient) {
     }
     else{
       $("#cm_dialog_region_dropdown_btn").text($(this).text());
-      $("#cm_dialog_region_dropdown_btn").val($(this).text());
+      $("#cm_dialog_region_dropdown_btn").val($(this).attr("value"));
       $(this).next('ul').toggle();
     }
-    region_store= $(this).text();
+
+    // start to add new tasks
+
+    var title_store = $("#cm_dialog_title").val();
+    desc_store = $("#cm_dialog_desc").val();
+    deliverable_store = $("#cm_dialog_delverbale").val();
+
+    Meteor.call('updateTask', title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(result);
+      }
+    });
   }
+
   Template.cm_task_view.onRendered(function(){
     if(DEBUG)console.log(" cm_task_view onRendered");
 
@@ -232,12 +312,11 @@ if (Meteor.isClient) {
 
       if (valid){
         // add task
-        title_store = $("#cm_dialog_title").val();
+        var title_store = $("#cm_dialog_title").val();
         desc_store = $("#cm_dialog_desc").val();
         deliverable_store = $("#cm_dialog_delverbale").val();
 
-
-        Meteor.call('addTask', title_store, desc_store, deliverable_store, region_store, function (error, result) {
+        Meteor.call('addTask', title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
           if (error) {
             console.log(error);
           } else {
@@ -253,9 +332,10 @@ if (Meteor.isClient) {
     function resetDialog(){
       $("#crete_task_form")[0].reset();
       $("#cm_dialog_region_dropdown_btn").val("null");
-      $("#cm_dialog_region_dropdown_btn").text("Create New Task");
+      $("#cm_dialog_region_dropdown_btn").text("Create New Region.");
       allFields.removeClass( "ui-state-error" );
     }
+
     dialog = $( "#create_task_dialg" ).dialog({
       autoOpen: false,
       height: "auto",
@@ -265,14 +345,26 @@ if (Meteor.isClient) {
       buttons: {
         "Create a Task": function(){
           if(addTask()){
-            console.log("a task should be created")
+            if(DEBUG) console.log("a task should be created")
             dialog.dialog("close");
             resetDialog();
+
+            Meteor.call('addTask', "", "", "", "", function (error, result) {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(result);
+                createdTaskId = result;
+              }
+            });
           }
         },
         Cancel: function() {
           dialog.dialog( "close" );
           resetDialog();
+          // remove task
+          createdTaskId = null;
+          Meteor.call('deleteTask',createdTaskId);
         }
       },
       close: function() {
