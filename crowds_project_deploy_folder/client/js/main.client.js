@@ -193,12 +193,6 @@ if (Meteor.isClient) {
 
     $(".dropdown-menu li a").click(dropDownClickHandler);
 
-
-//call this
-// function (_title, _desc, _deliverable, _region_id) {
-  //
-
-
     function updateTips( t ) {
       tips
         .text( t )
@@ -250,7 +244,7 @@ if (Meteor.isClient) {
             console.log(result);
           }
         });
-        
+
         return true;
       }
       return false;
