@@ -29,7 +29,6 @@ Meteor.methods({
       // If the task is private, make sure only the owner can delete it
       throw new Meteor.Error("not-authorized");
     }
-
     return Tasks.remove(taskId);
   },
   updateTask: function(taskId, _title, _desc, _deliverable, _region_id){

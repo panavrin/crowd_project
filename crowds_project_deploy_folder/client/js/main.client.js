@@ -2,6 +2,7 @@ ace_editor = null;
 minNumLineRegion = 5;
 editor_rendered = false;
 accordionRegionRenedered = false;
+Session.set("taskID",null);
 
 var Range = require('ace/range').Range;
 
@@ -252,7 +253,12 @@ if (Meteor.isClient) {
     desc_store = $("#cm_dialog_desc").val();
     deliverable_store = $("#cm_dialog_delverbale").val();
 
-    Meteor.call('updateTask', title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
+    if (Session.get("taskID") == null)
+    {
+      alert("task ID should have been received.");
+    }
+
+    Meteor.call('updateTask', Session.get("taskID"), title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
       if (error) {
         console.log(error);
       } else {
@@ -355,14 +361,6 @@ if (Meteor.isClient) {
             dialog.dialog("close");
             resetDialog();
 
-            Meteor.call('addTask', "", "", "", "", function (error, result) {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log(result);
-                createdTaskId = result;
-              }
-            });
           }
         },
         Cancel: function() {
@@ -370,7 +368,8 @@ if (Meteor.isClient) {
           resetDialog();
           // remove task
           createdTaskId = null;
-          Meteor.call('deleteTask',createdTaskId);
+          Session.set("taskID",null)
+          Meteor.call('deleteTask',Session.get("taskId"));
         }
       },
       close: function() {
@@ -382,11 +381,27 @@ if (Meteor.isClient) {
   Template.cm_task_view.events({
     "click #btn_creat_task": function (event) {
 
-      if (Meteor.user()== null)
+      if (Meteor.user()== null){
         alert("Sign up please!")
+        return;
+      }
       else{
         if(DEBUG) console.log("Create new task button clicked");
         dialog.dialog( "open" );
+      }
+
+      if (Session.get("taskId") == null){
+        Meteor.call('addTask', "", "", "", "", function (error, result) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(result);
+            Session.set("taskID",result);
+          }
+        });
+      }
+      else{
+        if(DEBUG) alert(" create new task / button not null");
       }
     }/*,
     "click .dropdown-menu li a" : function (event) {
