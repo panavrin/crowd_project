@@ -17,7 +17,7 @@ Meteor.methods({
       region: _region_id,
       owner: Meteor.userId(),
       username: Meteor.user().username,
-      // state: _state, // state can be : open, available, locked,
+      state: "in_creation",
       updatedAt: now
     });
 
@@ -31,7 +31,7 @@ Meteor.methods({
     }
     return Tasks.remove(taskId);
   },
-  updateTask: function(taskId, _title, _desc, _deliverable, _region_id){
+  updateTask: function(taskId, _title, _desc, _deliverable, _region_id,_state){
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
@@ -41,11 +41,8 @@ Meteor.methods({
         title: _title,
         desc:_desc,
         deliverable:_deliverable,
-        createdAt: now,
         region: _region_id,
-        creator: Meteor.userId(),
-        creator_user_name: Meteor.user().username,
-        // state: _state, // state can be : open, available, locked,
+        state: _state, // state can be : open, available, locked,
         updatedAt: now
       }
     });

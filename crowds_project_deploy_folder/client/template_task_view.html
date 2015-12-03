@@ -70,8 +70,9 @@
 		// state: _state, // state can be : open, available, locked,
 		updatedAt: now-->
 <template name="cm_task">
-		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
-			<strong> Task - {{title}} </strong>
+		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
+		{{stateOfTask state}}">
+			<div><strong> Task - {{title}} </strong></div>
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>
@@ -85,10 +86,18 @@
 	    	{{/if}}
 			</p>
 			<p>
-				{{#if creator_user_name}}
+				{{#if username}}
 	        <strong>Creator</strong>
-					<p>{{creator_user_name}}</p>
+					<p>{{username}}</p>
 	    	{{/if}}
 			</p>
+
+			<p>
+				{{#if isTaskOpen state}}
+	        <button class = "btn btn-default"> Go! </button>
+				
+				{{/if}}
+			</p>
+
 		</div>
 </template>

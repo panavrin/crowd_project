@@ -26,6 +26,18 @@ fieldset .margin-top{
   overflow:auto;
 }
 
+.task_in_creation{
+  background: #ffa0a0!important;
+}
+
+.task_open{
+  background: #ffffa0!important;
+}
+
+.task_in_progress{
+  background: #a0ffa0!important;
+}
+
 .region{
   position:absolute;
   top:0px;
