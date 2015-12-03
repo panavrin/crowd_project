@@ -116,20 +116,29 @@ if (Meteor.isClient) {
   Template.cm_region_task_list.onRendered(function(){
   //  $('.accordion_region').accordion("refresh");
     $(".dropdown-menu li a").click(dropDownClickHandler);
-
+    this.$(".accordion-header").click(function(event){
+      var panel = $(this).next();
+      var isOpen = panel.is(':visible');
+      // open or close as necessary
+      panel[isOpen? 'slideUp': 'slideDown']()
+          // trigger the correct custom event
+          .trigger(isOpen? 'hide': 'show');
+      // stop the link from causing a pagescroll
+      return false;
+    });
   })
 
   Template.cm_task.onRendered(function(){
-  /*  $( ".accordion_task.not-rendered" ).accordion({
-      collapsible: true,
-      heightStyle: "content",
-      active:false,
-      header:"h3"
+    this.$(".accordion-header").click(function(event){
+      var panel = $(this).next();
+      var isOpen = panel.is(':visible');
+      // open or close as necessary
+      panel[isOpen? 'slideUp': 'slideDown']()
+          // trigger the correct custom event
+          .trigger(isOpen? 'hide': 'show');
+      // stop the link from causing a pagescroll
+      return false;
     });
-
-    $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
-
-    $('.accordion_task').accordion("refresh");*/
   })
 
   Template.cm_region.onRendered(function(){
@@ -235,16 +244,7 @@ if (Meteor.isClient) {
 
     $(".dropdown-menu li a").click(dropDownClickHandler);
 
-    $(".accordion-header").click(function(event){
-      var panel = $(this).next();
-      var isOpen = panel.is(':visible');
-      // open or close as necessary
-      panel[isOpen? 'slideUp': 'slideDown']()
-          // trigger the correct custom event
-          .trigger(isOpen? 'hide': 'show');
-      // stop the link from causing a pagescroll
-      return false;
-    });
+
     $(".accordion-expand-all").data('isAllOpen',true);
     $(".accordion-expand-all").click(function(event){
       var isAllOpen = $(this).data('isAllOpen');
