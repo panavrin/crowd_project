@@ -43,6 +43,8 @@ Meteor.methods({
         deliverable:_deliverable,
         createdAt: now,
         region: _region_id,
+        creator: Meteor.userId(),
+        creator_user_name: Meteor.user().username,
         // state: _state, // state can be : open, available, locked,
         updatedAt: now
       }

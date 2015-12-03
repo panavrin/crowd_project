@@ -1,7 +1,7 @@
 ace_editor = null;
 minNumLineRegion = 5;
 editor_rendered = false;
-accordionRegionRenedered = false;
+//accordionRegionRenedered = false;
 Session.set("taskID",null);
 
 var Range = require('ace/range').Range;
@@ -30,7 +30,7 @@ if (Meteor.isClient) {
   Template.cm_task_view.onRendered(function () {
   // Use the Packery jQuery plugin
     if(DEBUG) console.log("task_on_rendered");
-    $( ".accordion_region" ).accordion({
+  /*  $( ".accordion_region" ).accordion({
       collapsible: true,
       heightStyle: "content",
       active:true,
@@ -95,7 +95,7 @@ if (Meteor.isClient) {
     });
 
     $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
-
+*/
   });
 
   Template.cm_code_editor.helpers({
@@ -164,13 +164,13 @@ if (Meteor.isClient) {
   });
 
   Template.cm_region_task_list.onRendered(function(){
-    $('.accordion_region').accordion("refresh");
+  //  $('.accordion_region').accordion("refresh");
     $(".dropdown-menu li a").click(dropDownClickHandler);
 
   })
 
   Template.cm_task.onRendered(function(){
-    $( ".accordion_task.not-rendered" ).accordion({
+  /*  $( ".accordion_task.not-rendered" ).accordion({
       collapsible: true,
       heightStyle: "content",
       active:false,
@@ -179,7 +179,7 @@ if (Meteor.isClient) {
 
     $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
 
-    $('.accordion_task').accordion("refresh");
+    $('.accordion_task').accordion("refresh");*/
   })
 
   Template.cm_region.onRendered(function(){
@@ -195,7 +195,45 @@ if (Meteor.isClient) {
     }
   })
 
+  function updateTask(){
+    if (Session.get("taskID") == null){
+      if (DEBUG) alert("task ID null, it should not happen. ");
+      return;
+    }
+    var title_store = $("#cm_dialog_title").val();
+    desc_store = $("#cm_dialog_desc").val();
+    deliverable_store = $("#cm_dialog_delverbale").val();
 
+    if (Session.get("taskID") == null)
+    {
+      alert("task ID should have been received.");
+    }
+
+    Meteor.call('updateTask', Session.get("taskID"), title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(result);
+      }
+    });
+  }
+
+  function dropDownClickHandler(event){
+    if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
+
+    if($(this).attr("value") == "new"){
+      $(".new_region").removeClass("hidden");
+      dialog.dialog( "close" );
+      $(this).next('ul').toggle();
+    }
+    else{
+      $("#cm_dialog_region_dropdown_btn").text($(this).text());
+      $("#cm_dialog_region_dropdown_btn").val($(this).attr("value"));
+      $(this).next('ul').toggle();
+    }
+    // start to add new tasks
+    updateTask();
+  }
 
 
   Template.cm_regions.events({
@@ -224,48 +262,17 @@ if (Meteor.isClient) {
         var emptylines = Array(minNumLineRegion).join('.').split('.') ;
         ace_editor.getSession().doc.insertLines(start,emptylines);
         $(".new_region").addClass("hidden");
-        $('.accordion_region').accordion("refresh");
+//        $('.accordion_region').accordion("refresh");
         // insert region and open the dialog again.
         dialog.dialog( "open" );
         $("#cm_dialog_region_dropdown_btn").text("Region " + region_name);
 
 
       }
+      ,"change #cm_dialog_title": updateTask
+      ,"change #cm_dialog_desc": updateTask
+      ,"change #cm_dialog_delverbale": updateTask
   });
-
-  function dropDownClickHandler(event){
-    if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
-
-    if($(this).attr("value") == "new"){
-      $(".new_region").removeClass("hidden");
-      dialog.dialog( "close" );
-      $(this).next('ul').toggle();
-    }
-    else{
-      $("#cm_dialog_region_dropdown_btn").text($(this).text());
-      $("#cm_dialog_region_dropdown_btn").val($(this).attr("value"));
-      $(this).next('ul').toggle();
-    }
-
-    // start to add new tasks
-
-    var title_store = $("#cm_dialog_title").val();
-    desc_store = $("#cm_dialog_desc").val();
-    deliverable_store = $("#cm_dialog_delverbale").val();
-
-    if (Session.get("taskID") == null)
-    {
-      alert("task ID should have been received.");
-    }
-
-    Meteor.call('updateTask', Session.get("taskID"), title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result);
-      }
-    });
-  }
 
   Template.cm_task_view.onRendered(function(){
     if(DEBUG)console.log(" cm_task_view onRendered");
@@ -279,7 +286,53 @@ if (Meteor.isClient) {
 
     $(".dropdown-menu li a").click(dropDownClickHandler);
 
+    $(".accordion-header").click(function(event){
+      var panel = $(this).next();
+      var isOpen = panel.is(':visible');
+      // open or close as necessary
+      panel[isOpen? 'slideUp': 'slideDown']()
+          // trigger the correct custom event
+          .trigger(isOpen? 'hide': 'show');
 
+      // stop the link from causing a pagescroll
+      return false;
+    });
+    $(".accordion-expand-all").data('isAllOpen',true);
+    $(".accordion-expand-all").click(function(event){
+      var isAllOpen = $(this).data('isAllOpen');
+      var taskAreas = $('.accordion_task .ui-accordion-content ');
+      var regionAreas = $('.accordion_region .ui-accordion-content ');
+
+      regionAreas[isAllOpen? 'hide': 'show']();
+        //  .trigger(isAllOpen? 'hide': 'show');
+      taskAreas[isAllOpen? 'hide': 'show']();
+          //.trigger(isAllOpen? 'hide': 'show');
+      var expandLink = $('.accordion-expand-all');
+
+      if(isAllOpen){
+        expandLink.text('Expand All');
+      }
+      else {
+        expandLink.text('Collapse All');
+      }
+      var isAllOpen = $(this).data('isAllOpen',!isAllOpen);
+    });/*
+    $(".ui-accordion-content").show( function(event){
+      var isAllOpen = !$('.accordion_region .ui-accordion-content ').is(':hidden');
+      isAllOpen = isAllOpen && !$('.accordion_task .ui-accordion-content ').is(':hidden');
+
+      var expandLink = $('.accordion-expand-all');
+
+      if(isAllOpen){
+          expandLink.text('Collapse All')
+              .data('isAllOpen', true);
+      }
+    });
+    $(".ui-accordion-content").hide( function(event){
+      var expandLink = $('.accordion-expand-all');
+      expandLink.text('Expand All').data('isAllOpen', false);
+    });
+*/
 //call this
 // function (_title, _desc, _deliverable, _region_id) {
   //
@@ -319,8 +372,8 @@ if (Meteor.isClient) {
       allFields.removeClass( "ui-state-error" );
 
       valid = valid &&  checkRegion($("#cm_dialog_region_dropdown_btn"));
-      valid = valid && checkLength(title, "Title", 5, 140);
-      valid = valid && checkLength(desc, "Description", 10, 500);
+      valid = valid && checkLength(title, "Title", 0, 140);
+      valid = valid && checkLength(desc, "Description", 5, 500);
 
       if (valid){
         // add task
@@ -368,8 +421,9 @@ if (Meteor.isClient) {
           resetDialog();
           // remove task
           createdTaskId = null;
-          Session.set("taskID",null)
           Meteor.call('deleteTask',Session.get("taskId"));
+          Session.set("taskID",null)
+
         }
       },
       close: function() {
@@ -379,6 +433,7 @@ if (Meteor.isClient) {
   });
 
   Template.cm_task_view.events({
+
     "click #btn_creat_task": function (event) {
 
       if (Meteor.user()== null){

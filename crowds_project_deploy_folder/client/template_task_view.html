@@ -4,9 +4,11 @@
 		<div class = "row">
 			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat New Task
 			</button>
+    	<button class="accordion-expand-all btn btn-default" href="#">Collapse All</button>
+
 		</div>
 		<div class = "row">
-			<div class="accordion_region">
+			<div class="accordion_region ui-accordion ui-widget ui-helper-reset">
 				{{#each allregions}}
 				  {{> cm_region_task_list}}
 				{{/each}}
@@ -31,9 +33,9 @@
 						</ul>
 					</div>
 
-			  	<label for="name"> Title (5-140) </label>
+			  	<label for="name"> Title (0-30) </label>
 			  	<input type="text" name="name" id="cm_dialog_title" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
-			  	<label for="email">Description (10-500)</label>
+			  	<label for="email">Description (5-500)</label>
 			  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="10"></textarea>
 			  	<label for="name"> Deliverable (optional)</label>
 			 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
@@ -46,13 +48,16 @@
 </template>
 
 <template name="cm_region_task_list">
-	<h2>
-		<strong> Region {{name}}</strong>
+
+	<h2 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
+			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span><strong> Region {{name}}</strong>
 	</h2>
-		<div class="accordion_task not-rendered" >
+	<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
+		<div class="accordion_task ui-accordion ui-widget ui-helper-reset">
 			{{#each tasksinregion _id}}
 				{{> cm_task}}
 			{{/each}}
+		</div>
 	</div>
 </template>
 <!--    title: _title,
@@ -65,17 +70,25 @@
 		// state: _state, // state can be : open, available, locked,
 		updatedAt: now-->
 <template name="cm_task">
-	<h3><strong> Task - {{title}} </strong></h3>
-	<div>
+		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
+			<strong> Task - {{title}} </strong>
+		</h3>
+		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>
-			<strong>Description</strong>
-			<p>{{desc}}</p>
-		</p>
-		<p>
-			{{#if deliverable}}
-        <strong>Deliverable</strong>
-				<p>{{deliverable}}</p>
-    	{{/if}}
-		</p>
-	</div>
+				<strong>Description</strong>
+				<p>{{desc}}</p>
+			</p>
+			<p>
+				{{#if deliverable}}
+	        <strong>Deliverable</strong>
+					<p>{{deliverable}}</p>
+	    	{{/if}}
+			</p>
+			<p>
+				{{#if creator_user_name}}
+	        <strong>Creator</strong>
+					<p>{{creator_user_name}}</p>
+	    	{{/if}}
+			</p>
+		</div>
 </template>
