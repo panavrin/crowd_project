@@ -422,26 +422,19 @@ if (Meteor.isClient) {
   });
 
   Template.cm_task.helpers({
-    stateOfTask: function(_state){
-      if ( _state == "in_creation"){
-        return "task_in_creation";
-      } else if ( _state == "open"){
-        return "task_open";
-      }else if ( _state == "in_progress"){
-        return "task_in_progress";
-      }else if ( _state == "completed"){
-        return "";
-      }
-      else{
-          if(DEBUG) console.log("unknown state");
-      }
-      return "";
-    }
-    ,isTaskOpen: function(_state){
+    isTaskOpen: function(_state){
       if ( _state == "open"){
         return true;
       }
       return false;
+    },isTaskLocked: function(_state){
+      if ( _state == "in_progress"){
+        return true;
+      }
+      return false;
+    }
+    ,stringifyTaskState: function(_state){
+      return _state.toUpperCase().replace("_", " ");;
     }
   });
 /*

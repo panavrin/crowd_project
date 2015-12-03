@@ -71,7 +71,7 @@
 		updatedAt: now-->
 <template name="cm_task">
 		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
-		{{stateOfTask state}}">
+		{{state}}">
 			<div><strong> Task - {{title}} </strong></div>
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
@@ -91,11 +91,17 @@
 					<p>{{username}}</p>
 	    	{{/if}}
 			</p>
-
+			<p>
+				<strong> Current State : {{stringifyTaskState state}} {{ #if isTaskLocked state}} by {{who}} {{/if}}</strong>
+			</p>
 			<p>
 				{{#if isTaskOpen state}}
-	        <button class = "btn btn-default"> Go! </button>
-				
+	        <button task_id = "{{_id}}" class = "task_lock_button right_button btn btn-success btn-block"><strong>Start this task!</strong></button>
+					{{else}}
+						{{#if isTaskLocked state}}
+						 <!-- by owner or not-->
+			        <button  class = "right_button btn btn-danger btn-block"><strong>LOCKED</strong></button>
+						{{/if}}
 				{{/if}}
 			</p>
 

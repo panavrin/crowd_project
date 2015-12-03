@@ -4,6 +4,9 @@ html, body {
     height: 100%;
 }
 
+.no_padding{
+  padding:0px;
+}
 /*div{
 	border:solid;
 	border-width: 1px;
@@ -18,6 +21,10 @@ fieldset .margin-top{
 	margin-top: 10px;
 }
 
+.right_button{
+  float:right;
+  color:black;
+}
 .hidden {
     display: none;
 }
@@ -25,16 +32,16 @@ fieldset .margin-top{
 .tasks_regions{
   overflow:auto;
 }
-
-.task_in_creation{
+/* task state */
+.in_creation{
   background: #ffa0a0!important;
 }
 
-.task_open{
+.open{
   background: #ffffa0!important;
 }
 
-.task_in_progress{
+.in_progress{
   background: #a0ffa0!important;
 }
 
@@ -115,9 +122,11 @@ textarea{
 }
 
 .border_live{
-	border:solid;
+	/*
+  border:solid;
 	border-width:1px;
 	border-color:#666699;
+  */
 }
 .header{
 	height: 5%;

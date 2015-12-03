@@ -1,5 +1,9 @@
 Tasks = new Meteor.Collection("tasks");
 Regions = new Meteor.Collection("regions");
+Messages = new Meteor.Collection("messages");
+Rooms = new Meteor.Collection("rooms");
+
+
 DEBUG  = true;
 Meteor.methods({
   addTask: function (_title, _desc, _deliverable, _region_id) {
