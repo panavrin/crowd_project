@@ -1,1 +1,0 @@
-{"head":"","body":"","js":"\nTemplate.__checkName(\"cm_header\");\nTemplate[\"cm_header\"] = new Template(\"Template.cm_header\", (function() {\n  var view = this;\n  return [ Spacebars.include(view.lookupTemplate(\"loginButtons\")), \"\\n\tHello this is the header\" ];\n}));\n","bodyAttrs":{}}

@@ -1,1 +1,0 @@
-{"head":"","body":"","js":"\nTemplate.__checkName(\"cm_runtime\");\nTemplate[\"cm_runtime\"] = new Template(\"Template.cm_runtime\", (function() {\n  var view = this;\n  return \"Hello this is the runtime environment for python. \\n  I have a feeling that Noah will like this part.\";\n}));\n","bodyAttrs":{}}

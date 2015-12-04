@@ -1,1 +1,0 @@
-{"head":"","body":"","js":"\nTemplate.__checkName(\"cm_task_view\");\nTemplate[\"cm_task_view\"] = new Template(\"Template.cm_task_view\", (function() {\n  var view = this;\n  return \"Hello this is the task_view part\";\n}));\n","bodyAttrs":{}}

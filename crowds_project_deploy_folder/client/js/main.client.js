@@ -81,7 +81,7 @@ if (Meteor.isClient) {
           lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
 
           margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
-          console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
+          if(DEBUG)console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
           maxLineNumber = -1;
           $(".region").each(function(){
             if(DEBUG)console.log("region");
@@ -437,21 +437,70 @@ if (Meteor.isClient) {
       return _state.toUpperCase().replace("_", " ");;
     }
   });
-/*
-  Template.cm_code_editor.helpers({
-    docid: function() {
-           console.log("docid call");
- return Session.get("document");
-    }
-  });
-  */
-  //
-  // Accounts.ui.config({
-  //   passwordSignupFields: "USERNAME_ONLY"
-  // });
+
+  Template.cm_runtime.onRendered(function(){
+
+    $("#run_time_input").keyup(function(){
+      if (event.which == 13) {
+          runit();
+          $("#run_time_input").val("");
+      }
+    })
+      outf = function (text) {
+        var output = $("#run_time_output");
+        output.prepend(text)
+      };
+      builtinRead = function (x) {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+            throw "File not found: '" + x + "'";
+          return Sk.builtinFiles["files"][x];
+      };
+      runit = function() {
+         var prog = $("#run_time_input").val();
+         Sk.pre = "run_time_output";
+         Sk.configure({output:outf, read:builtinRead});
+         (Sk.TurtleGraphics || (Sk.TurtleGraphics = {})).target = 'mycanvas';
+         var myPromise = Sk.misceval.asyncToPromise(function() {
+             return Sk.importMainWithBody("<stdin>", false, prog, true);
+         });
+         myPromise.then(function(mod) {
+               console.log('success');
+           },function(err) {
+             outf(err.toString() + "\n");
+         }).done();
+         Sk.externalLibraries = {
+            numpy : {
+                path: 'http://example.com/static/primeronoo/skulpt/external/numpy/__init__.js',
+                dependencies: ['/static/primeronoo/skulpt/external/deps/math.js'],
+            },
+            matplotlib : {
+                path: '/static/primeronoo/skulpt/external/matplotlib/__init__.js'
+            },
+            "matplotlib.pyplot" : {
+                path: '/static/primeronoo/skulpt/external/matplotlib/pyplot/__init__.js',
+                dependencies: ['/static/primeronoo/skulpt/external/deps/d3.min.js'],
+            },
+            "arduino": {
+                path: '/static/primeronoo/skulpt/external/arduino/__init__.js'
+            }
+        };
+        }
+  //    });
+  //  });
+
+  })
 
   Meteor.startup(function(){
+    $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
+      if(DEBUG)console.log(error);
+      $.getScript('http://www.skulpt.org/static/skulpt-stdlib.js', function(error){
+        if(DEBUG)console.log(error);
+        });
+    });
+
+
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/chance/0.5.6/chance.min.js', function(){
+
     // script has loaded
       Session.set('chanceReady', true);
       if(DEBUG) console.log("chance script imported");

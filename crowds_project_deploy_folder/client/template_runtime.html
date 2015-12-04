@@ -1,7 +1,20 @@
 
 
 <template name="cm_runtime">
-  Hello this is the runtime environment for python. 
-  I have a feeling that Noah will like this part. 
-  
+<!--  <div style="background-color: #ffffff;  height: 20%;">
+    ><input type="text" id="run_time_input" placeholder="Run your python script here. " style = "width : 95%; border:none;">
+
+  </div>
+  <div id="run_time_output" class = "wordwrap" style="background-color: #ffffff;  height: 90%; overflow: auto">
+  </div>-->
+  <div>
+    Python Console
+  </div>
+  <div id="sandbox">
+    <pre class="output" id="run_time_output"></pre>
+    <div class="input">
+      <textarea id="run_time_input" rows="1" placeholder="type python code here"></textarea>
+    </div>
+	</div>
+
 </template>
