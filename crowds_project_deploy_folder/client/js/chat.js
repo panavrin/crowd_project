@@ -1,5 +1,3 @@
-Messages = new Meteor.Collection("messages");
-Rooms = new Meteor.Collection("rooms");
 
 if (Meteor.isClient) {
   Accounts.ui.config({
@@ -28,10 +26,13 @@ if (Meteor.isClient) {
     el.value = "";
     // el.focus();
   };
+  Template.message.onRendered(function(){
+    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+  });
 
   Template.messages.helpers({
     messages: function() {
-      return Messages.find({room: Session.get("roomname")}, {sort: {ts: -1}});
+      return Messages.find({room: Session.get("roomname")}, {sort: {ts: 1}});
     },
 	roomname: function() {
       return Session.get("roomname");
@@ -66,52 +67,5 @@ if (Meteor.isClient) {
     release: function() {
       return Meteor.release;
     }
-  });
-}
-
-if (Meteor.isServer) {
-  Meteor.startup(function () {
-    // Messages.remove({});
-    Rooms.remove({});
-    if (Rooms.find().count() === 0) {
-      ["Meteor", "JavaScript", "Reactive", "MongoDB"].forEach(function(r) {
-        Rooms.insert({roomname: r});
-      });
-    }
-  });
-
-  Rooms.deny({
-    insert: function (userId, doc) {
-      return true;
-    },
-    update: function (userId, doc, fieldNames, modifier) {
-      return true;
-    },
-    remove: function (userId, doc) {
-      return true;
-    }
-  });
-  Messages.deny({
-    insert: function (userId, doc) {
-      return (userId === null);
-    },
-    update: function (userId, doc, fieldNames, modifier) {
-      return true;
-    },
-    remove: function (userId, doc) {
-      return true;
-    }
-  });
-  Messages.allow({
-    insert: function (userId, doc) {
-      return (userId !== null);
-    }
-  });
-
-  Meteor.publish("rooms", function () {
-    return Rooms.find();
-  });
-  Meteor.publish("messages", function () {
-    return Messages.find({}, {sort: {ts: -1}});
   });
 }

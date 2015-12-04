@@ -4,10 +4,75 @@ html, body {
     height: 100%;
 }
 
+.no_padding{
+  padding:0px;
+}
+
+.wordwrap {
+   white-space: pre-wrap;      /* CSS3 */
+   white-space: -moz-pre-wrap; /* Firefox */
+   white-space: -pre-wrap;     /* Opera <7 */
+   white-space: -o-pre-wrap;   /* Opera 7 */
+   word-wrap: break-word;      /* IE */
+}
+
 /*div{
 	border:solid;
 	border-width: 1px;
 }*/
+
+
+#sandbox {
+    background: #333;
+    color: #ccc;
+    background: #333;
+    padding: 20px 20px 15px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 5px;
+    max-width: 640px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    height:80%;
+}
+
+#sandbox textarea {
+    color: #f7f7f7;
+    background: #333;
+    border: 0 none;
+    outline: 0 none;
+    padding: 0;
+    margin: 0;
+    resize: none;
+    width: 100 %;
+    overflow: hidden;
+}
+
+#sandbox pre.output {
+  color: #ccc;
+  background: #333;
+  display: block;
+  white-space: pre;
+  width: 100%;
+  height: 90%;
+  overflow-y: auto;
+  position: relative;
+  padding: 0;
+  margin: 0 0 10px;
+  border: 0 none;
+}
+
+#sandbox, #sandbox pre.output, #sandbox pre.output span, #sandbox textarea, #sandbox textarea:focus {
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: normal;
+    font-family: "Consolas", "Andale Mono", "Courier New", "Courier", monospace;
+    border: 0 none;
+    outline: 0 none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
 
 label, input,textarea { display:block; }
 input.text { margin-bottom:12px; width:95%; padding: .4em; }
@@ -18,6 +83,10 @@ fieldset .margin-top{
 	margin-top: 10px;
 }
 
+.right_float{
+  float:right;
+  margin-right:3px;
+}
 .hidden {
     display: none;
 }
@@ -25,6 +94,21 @@ fieldset .margin-top{
 .tasks_regions{
   overflow:auto;
 }
+<<<<<<< HEAD
+=======
+/* task state */
+.in_creation{
+  background: #ffa0a0!important;
+}
+
+.open{
+  background: #ffffa0!important;
+}
+
+.in_progress{
+  background: #a0ffa0!important;
+}
+>>>>>>> 570c1960877406cfe21c2709274aa19431721bed
 
 .region{
   position:absolute;
@@ -99,13 +183,15 @@ textarea{
 	border-width:1px;*/
 }
 .container-fluid{
-    height:100%;
+    height:98%;
 }
 
 .border_live{
-	border:solid;
+	/*
+  border:solid;
 	border-width:1px;
 	border-color:#666699;
+  */
 }
 .header{
 	height: 5%;

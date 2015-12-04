@@ -1,5 +1,9 @@
 Tasks = new Meteor.Collection("tasks");
 Regions = new Meteor.Collection("regions");
+Messages = new Meteor.Collection("messages");
+Rooms = new Meteor.Collection("rooms");
+
+
 DEBUG  = true;
 Meteor.methods({
   addTask: function (_title, _desc, _deliverable, _region_id) {
@@ -17,11 +21,41 @@ Meteor.methods({
       region: _region_id,
       owner: Meteor.userId(),
       username: Meteor.user().username,
-      // state: _state, // state can be : open, available, locked,
+      state: "in_creation",
+      lockedby:"",
       updatedAt: now
     });
-
     //store task data
+  },
+// lockTask is in server.js for atomic operation.
+  unlockTask: function(taskId, username){
+    var task = Tasks.findOne(taskId);
+    if (task == null){
+      throw new Meteor.Error("Cannot find the task : " + taskId);
+    }
+    if(task.state!="in_progress"){
+      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+    }
+    return Tasks.update({_id:taskId},{$set:{
+        state: "open",
+        lockedby:null
+      }
+    });
+  },
+  completeTask: function(taskId, username){
+    var task = Tasks.findOne(taskId);
+    if (task == null){
+      throw new Meteor.Error("Cannot find the task : " + taskId);
+    }
+    if(task.state!="in_progress"){
+      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+    }
+    return Tasks.update({_id:taskId},{$set:{
+        state: "complete",
+        lockedby:null,
+        completedby:username
+      }
+    });
   },
   deleteTask: function (taskId) {
     var task = Tasks.findOne(taskId);
@@ -29,6 +63,7 @@ Meteor.methods({
       // If the task is private, make sure only the owner can delete it
       throw new Meteor.Error("not-authorized");
     }
+<<<<<<< HEAD
 
     return Tasks.remove(taskId);
   },
@@ -37,14 +72,28 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
     if(DEBUG) console.log("updated:" + taskId);
+=======
+    return Tasks.remove(taskId);
+  },
+  updateTask: function(taskId, _title, _desc, _deliverable, _region_id,_state){
+    if (! Meteor.userId()) {
+      throw new Meteor.Error("not-authorized");
+    }
+    //if(DEBUG) console.log("updated:" + taskId);
+>>>>>>> 570c1960877406cfe21c2709274aa19431721bed
     var now = new Date();
     return Tasks.update({_id:taskId},{$set:{
         title: _title,
         desc:_desc,
         deliverable:_deliverable,
+<<<<<<< HEAD
         createdAt: now,
         region: _region_id,
         // state: _state, // state can be : open, available, locked,
+=======
+        region: _region_id,
+        state: _state, // state can be : open, available, locked,
+>>>>>>> 570c1960877406cfe21c2709274aa19431721bed
         updatedAt: now
       }
     });

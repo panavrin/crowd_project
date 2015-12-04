@@ -4,9 +4,11 @@
 		<div class = "row">
 			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat New Task
 			</button>
+    	<button class="accordion-expand-all btn btn-default" href="#">Collapse All</button>
+
 		</div>
 		<div class = "row">
-			<div class="accordion_region">
+			<div class="accordion_region ui-accordion ui-widget ui-helper-reset">
 				{{#each allregions}}
 				  {{> cm_region_task_list}}
 				{{/each}}
@@ -31,9 +33,9 @@
 						</ul>
 					</div>
 
-			  	<label for="name"> Title (5-140) </label>
+			  	<label for="name"> Title (0-30) </label>
 			  	<input type="text" name="name" id="cm_dialog_title" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
-			  	<label for="email">Description (10-500)</label>
+			  	<label for="email">Description (5-500)</label>
 			  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="10"></textarea>
 			  	<label for="name"> Deliverable (optional)</label>
 			 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
@@ -46,6 +48,7 @@
 </template>
 
 <template name="cm_region_task_list">
+<<<<<<< HEAD
 	<h2>
 		<strong> Region {{name}}</strong>
 	</h2>
@@ -53,6 +56,18 @@
 			{{#each tasksinregion _id}}
 				{{> cm_task}}
 			{{/each}}
+=======
+
+	<h2 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
+			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span> Region {{name}}
+	</h2>
+	<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
+		<div class="accordion_task ui-accordion ui-widget ui-helper-reset">
+			{{#each tasksinregion _id}}
+				{{> cm_task}}
+			{{/each}}
+		</div>
+>>>>>>> 570c1960877406cfe21c2709274aa19431721bed
 	</div>
 </template>
 <!--    title: _title,
@@ -65,6 +80,7 @@
 		// state: _state, // state can be : open, available, locked,
 		updatedAt: now-->
 <template name="cm_task">
+<<<<<<< HEAD
 	<h3><strong> Task - {{title}} </strong></h3>
 	<div>
 		<p>
@@ -78,4 +94,50 @@
     	{{/if}}
 		</p>
 	</div>
+=======
+		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
+		{{state}}">
+			<div> Task - {{title}} </div>
+		</h3>
+		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
+		<p>
+				Description
+				<p>{{desc}}</p>
+			</p>
+			<p>
+				{{#if deliverable}}
+	        Deliverable
+					<p>{{deliverable}}</p>
+	    	{{/if}}
+			</p>
+			<p>
+				{{#if username}}
+	        Creator
+					<p>{{username}}</p>
+	    	{{/if}}
+			</p>
+			<p>
+				 Current State : {{stringifyTaskState state}} {{ #if isTaskLocked state}} by {{lockedby}} {{/if}}
+			</p>
+			<p>
+				{{#if isTaskOpen state}}
+	        <button task_id = "{{_id}}" class = "task_lock_button btn btn-success btn-block">Start this task!</button>
+					{{else}}
+						{{#if isTaskLocked state}}
+						 <!-- by owner or not-->
+						 {{#if isOwner lockedby}}
+						 <p>
+			 				 You are currently working on this.
+			 			</p>
+							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">Leave for now</button>
+						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
+							{{else}}
+							<button  class = "right_float btn btn-danger btn-block">{{lockedby}} is working on this...</button>
+							{{/if}}
+						{{/if}}
+				{{/if}}
+			</p>
+
+		</div>
+>>>>>>> 570c1960877406cfe21c2709274aa19431721bed
 </template>
