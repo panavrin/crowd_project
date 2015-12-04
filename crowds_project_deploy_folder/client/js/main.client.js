@@ -3,6 +3,7 @@ minNumLineRegion = 5;
 editor_rendered = false;
 //accordionRegionRenedered = false;
 Session.set("TASK_ID",null);
+task_view_flag = null;
 
 var Range = require('ace/range').Range;
 
@@ -71,41 +72,45 @@ if (Meteor.isClient) {
         ace.getSession().on('changeScrollTop', function(scroll) {
           regionUpdated = true;
         });
+        if ( task_view_flag){
+          updateRegions = function(){
+            var gutterStart = $("#editor .ace_gutter :first-child");
+            var firstLine = gutterStart.children().first();
+            var numFirstLine = parseInt(firstLine.text());
+            var margin_top = gutterStart.css("margin-top");
+            lineHeight = firstLine.css("height");
+            lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
 
-        updateRegions = function(){
-          var gutterStart = $("#editor .ace_gutter :first-child");
-          var firstLine = gutterStart.children().first();
-          var numFirstLine = parseInt(firstLine.text());
-          var margin_top = gutterStart.css("margin-top");
-          lineHeight = firstLine.css("height");
-          lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
+            margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
+            if(DEBUG)console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
+            maxLineNumber = -1;
+            $(".region").each(function(){
+              if(DEBUG)console.log("region");
+              var start = parseInt($(this).attr("start")),
+              end = parseInt($(this).attr("end"));
+              $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
+              $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
+              if (maxLineNumber < end)
+                maxLineNumber = end;
+            });
+          }
 
-          margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
-          if(DEBUG)console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
-          maxLineNumber = -1;
-          $(".region").each(function(){
-            if(DEBUG)console.log("region");
-            var start = parseInt($(this).attr("start")),
-            end = parseInt($(this).attr("end"));
-            $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
-            $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
-            if (maxLineNumber < end)
-              maxLineNumber = end;
+          ace.renderer.on("afterRender", function(e) {
+            editor_rendered = true;
+            if (regionUpdated) {
+              updateRegions();
+            }
+            regionUpdated = false;
           });
         }
-
-        ace.renderer.on("afterRender", function(e) {
-          editor_rendered = true;
-          if (regionUpdated) {
-            updateRegions();
-          }
-          regionUpdated = false;
-        });
       };
     },
     setMode: function(){
       return function(editor){
-        ace_editor.setReadOnly(true);
+        if (task_view_flag){
+          ace_editor.setReadOnly(true);
+        }
+
         if (ace_editor.getValue().length==0)
           ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
         if(DEBUG)console.log("setMode");
@@ -437,12 +442,17 @@ if (Meteor.isClient) {
       return _state.toUpperCase().replace("_", " ");;
     }
   });
+  Template.cm_runtime.events({
+    "click #run_editor_code": function (event) {
+      runPythonCode(true);
+    }
+  });
 
   Template.cm_runtime.onRendered(function(){
 
     $("#run_time_input").keyup(function(){
       if (event.which == 13) {
-          runit();
+          runPythonCode();
           $("#run_time_input").val("");
       }
     })
@@ -455,8 +465,17 @@ if (Meteor.isClient) {
             throw "File not found: '" + x + "'";
           return Sk.builtinFiles["files"][x];
       };
-      runit = function() {
-         var prog = $("#run_time_input").val();
+      runPythonCode = function(editor) {
+        var prog = $("#run_time_input").val();
+
+        if (editor){
+          if (ace_editor.getSelectedText().length > 0){
+              prog = ace_editor.getSelectedText();
+          }else {
+              prog = ace_editor.getValue();
+          }
+        }
+
          Sk.pre = "run_time_output";
          Sk.configure({output:outf, read:builtinRead});
          (Sk.TurtleGraphics || (Sk.TurtleGraphics = {})).target = 'mycanvas';
@@ -466,12 +485,12 @@ if (Meteor.isClient) {
          myPromise.then(function(mod) {
                console.log('success');
            },function(err) {
-             outf(err.toString() + "\n");
+             outf("\n" + err.toString());
          }).done();
-         Sk.externalLibraries = {
+         /*Sk.externalLibraries = {
             numpy : {
                 path: 'http://example.com/static/primeronoo/skulpt/external/numpy/__init__.js',
-                dependencies: ['/static/primeronoo/skulpt/external/deps/math.js'],
+                dependencies: ['/static/primeronoo/skulpt/extaskViewModeternal/deps/math.js'],
             },
             matplotlib : {
                 path: '/static/primeronoo/skulpt/external/matplotlib/__init__.js'
@@ -483,28 +502,37 @@ if (Meteor.isClient) {
             "arduino": {
                 path: '/static/primeronoo/skulpt/external/arduino/__init__.js'
             }
-        };
+        };*/
         }
   //    });
   //  });
 
   })
 
+  Template.body.helpers({
+    taskViewMode : function(){
+      if (task_view_flag == null ){
+        task_view_flag = location.search.split('task_view_flag=')[1];
+        task_view_flag = task_view_flag == "true" ? true : false
+      }
+      return task_view_flag;
+    }
+  });
+
   Meteor.startup(function(){
+
+
     $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
       if(DEBUG)console.log(error);
       $.getScript('http://www.skulpt.org/static/skulpt-stdlib.js', function(error){
         if(DEBUG)console.log(error);
-        });
+      });
     });
-
 
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/chance/0.5.6/chance.min.js', function(){
-
     // script has loaded
-      Session.set('chanceReady', true);
       if(DEBUG) console.log("chance script imported");
-    });
+      });
   });
 
 }

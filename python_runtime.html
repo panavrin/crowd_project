@@ -20,7 +20,7 @@ function builtinRead(x) {
     return Sk.builtinFiles["files"][x];
 }
 
-function runit() {
+function runPythonCode() {
    var prog = document.getElementById("yourcode").value;
    var mypre = document.getElementById("output");
    mypre.innerHTML = '';
@@ -72,7 +72,7 @@ if matchObj:
 else:
    print "No match!!"
 </textarea><br />
-<button type="button" onclick="runit()">Run</button>
+<button type="button" onclick="runPythonCode()">Run</button>
 </form>
 <pre id="output" ></pre>
 </body>
