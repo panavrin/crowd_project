@@ -9,6 +9,24 @@ if (Meteor.isServer) {
     return Regions.find({});
   });
 
+  Meteor.methods({
+    lockTask: function(taskId, username){
+      var task = Tasks.findOne(taskId);
+      if (task == null){
+        throw new Meteor.Error("Cannot find the task : " + taskId);
+      }
+      if(task.state!="open"){
+        throw new Meteor.Error("You cannot start the task. It is not in open state.");
+      }
+      return Tasks.update({_id:taskId},{$set:{
+          state: "in_progress",
+          lockedby:username
+        }
+      });
+    }
+  });
+
+
 }
 else{
   console.log("This cannot happne. Meteor.isServer is false in a file in server directory");

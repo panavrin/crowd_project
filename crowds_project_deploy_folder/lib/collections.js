@@ -22,10 +22,40 @@ Meteor.methods({
       owner: Meteor.userId(),
       username: Meteor.user().username,
       state: "in_creation",
+      lockedby:"",
       updatedAt: now
     });
-
     //store task data
+  },
+// lockTask is in server.js for atomic operation.
+  unlockTask: function(taskId, username){
+    var task = Tasks.findOne(taskId);
+    if (task == null){
+      throw new Meteor.Error("Cannot find the task : " + taskId);
+    }
+    if(task.state!="in_progress"){
+      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+    }
+    return Tasks.update({_id:taskId},{$set:{
+        state: "open",
+        lockedby:null
+      }
+    });
+  },
+  completeTask: function(taskId, username){
+    var task = Tasks.findOne(taskId);
+    if (task == null){
+      throw new Meteor.Error("Cannot find the task : " + taskId);
+    }
+    if(task.state!="in_progress"){
+      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+    }
+    return Tasks.update({_id:taskId},{$set:{
+        state: "complete",
+        lockedby:null,
+        completedby:username
+      }
+    });
   },
   deleteTask: function (taskId) {
     var task = Tasks.findOne(taskId);
@@ -39,7 +69,7 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
-    if(DEBUG) console.log("updated:" + taskId);
+    //if(DEBUG) console.log("updated:" + taskId);
     var now = new Date();
     return Tasks.update({_id:taskId},{$set:{
         title: _title,

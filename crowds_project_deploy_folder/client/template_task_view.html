@@ -50,7 +50,7 @@
 <template name="cm_region_task_list">
 
 	<h2 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
-			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span><strong> Region {{name}}</strong>
+			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span> Region {{name}}
 	</h2>
 	<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<div class="accordion_task ui-accordion ui-widget ui-helper-reset">
@@ -72,35 +72,43 @@
 <template name="cm_task">
 		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
 		{{state}}">
-			<div><strong> Task - {{title}} </strong></div>
+			<div> Task - {{title}} </div>
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>
-				<strong>Description</strong>
+				Description
 				<p>{{desc}}</p>
 			</p>
 			<p>
 				{{#if deliverable}}
-	        <strong>Deliverable</strong>
+	        Deliverable
 					<p>{{deliverable}}</p>
 	    	{{/if}}
 			</p>
 			<p>
 				{{#if username}}
-	        <strong>Creator</strong>
+	        Creator
 					<p>{{username}}</p>
 	    	{{/if}}
 			</p>
 			<p>
-				<strong> Current State : {{stringifyTaskState state}} {{ #if isTaskLocked state}} by {{who}} {{/if}}</strong>
+				 Current State : {{stringifyTaskState state}} {{ #if isTaskLocked state}} by {{lockedby}} {{/if}}
 			</p>
 			<p>
 				{{#if isTaskOpen state}}
-	        <button task_id = "{{_id}}" class = "task_lock_button right_button btn btn-success btn-block"><strong>Start this task!</strong></button>
+	        <button task_id = "{{_id}}" class = "task_lock_button btn btn-success btn-block">Start this task!</button>
 					{{else}}
 						{{#if isTaskLocked state}}
 						 <!-- by owner or not-->
-			        <button  class = "right_button btn btn-danger btn-block"><strong>LOCKED</strong></button>
+						 {{#if isOwner lockedby}}
+						 <p>
+			 				 You are currently working on this.
+			 			</p>
+							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">Leave for now</button>
+						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
+							{{else}}
+							<button  class = "right_float btn btn-danger btn-block">{{lockedby}} is working on this...</button>
+							{{/if}}
 						{{/if}}
 				{{/if}}
 			</p>
