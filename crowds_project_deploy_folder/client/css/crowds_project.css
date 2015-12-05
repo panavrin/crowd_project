@@ -99,6 +99,18 @@ fieldset .margin-top{
   background: #ffa0a0!important;
 }
 
+.region_open{
+  background: #ffa0a0!important;
+}
+
+.region_locked{
+  background: #ff0000!important;
+}
+
+.region_locked_by_me{
+  background: #00ff00!important;
+}
+
 .open{
   background: #ffffa0!important;
 }
@@ -107,13 +119,18 @@ fieldset .margin-top{
   background: #a0ffa0!important;
 }
 
+.block_pointing{
+  pointer-events:none;
+}
+
 .region{
   position:absolute;
+  pointer-events:none;
+
   top:0px;
   left:0px;
   height:0px;
   width:100%;
-  pointer-events:none;
   border-radius : 12px;
   text-align : right;
   background:rgba(0,0,0,0.1);;

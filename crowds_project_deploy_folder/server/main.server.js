@@ -18,11 +18,18 @@ if (Meteor.isServer) {
       if(task.state!="open"){
         throw new Meteor.Error("You cannot start the task. It is not in open state.");
       }
-      return Tasks.update({_id:taskId},{$set:{
+      if(DEBUG) console.log("LOCK:" + username + "," +taskId + ","+task.region);
+      Regions.update({_id:task.region_id}, {$set:{
+        state : "region_locked",
+        region_locked_by:username
+      }});
+
+      Tasks.update({_id:taskId},{$set:{
           state: "in_progress",
           lockedby:username
         }
       });
+      return task.region
     }
   });
 
@@ -31,7 +38,6 @@ if (Meteor.isServer) {
 else{
   console.log("This cannot happne. Meteor.isServer is false in a file in server directory");
 }
-
 
 if (Meteor.isServer) {
   Meteor.startup(function () {

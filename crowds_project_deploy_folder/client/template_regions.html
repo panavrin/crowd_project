@@ -8,7 +8,7 @@
 </template>
 
 <template name="cm_region">
-  <div class = "region existing_region" start = "{{start}}" end = "{{end}}">
+  <div id ="{{_id}}" class = "region existing_region block_pointing" start = "{{start}}" end = "{{end}}">
     Region {{name}} (created by {{username}})
   </div>
   <div class = "region new_region hidden" start = {{end}} end = {{end}}>

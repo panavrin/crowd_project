@@ -111,8 +111,9 @@ Meteor.methods({
       createdAt: now,
       owner: Meteor.userId(),
       username: Meteor.user().username,
-      state: "open", // state can be : open, available, locked,
-      updatedAt: now
+      state: "region_open", // state can be : open or locked,
+      updatedAt: now,
+      region_locked_by:""
     });
     // update other region's start/end numbers
     //console.log(Tasks.find({ start: {$gt: _end}}));
