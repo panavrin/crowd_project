@@ -111,7 +111,7 @@ if (Meteor.isClient) {
               startLine = e.data.range.start.row,
               endLine = e.data.range.end.row;
           });
-          
+          // idea is to make it readonly when selection is outside my locked region
           ace_editor.getSession().selection.on('changeCursor', function(e) {
             var region_id = Session.get("MY_LOCKED_REGION");
             var start_region_line = parseInt($("#"+region_id).attr("start")),
