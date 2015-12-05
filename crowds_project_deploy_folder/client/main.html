@@ -24,7 +24,6 @@
         {{> cm_code_editor}}
       </div>
 {{/if}}
-{{#if currentUser}}
 
   {{#if taskViewMode}}
         <div id = "cm_right_pane" class = "col-md-6 col-lg-6 fill border_live">
@@ -49,11 +48,6 @@
   					{{> chat}}
   				</div>
         </div>
-  {{/if}}
-  {{> messages}}
-  {{> input}}
-{{else}}
-    <p>Please log-in!</p>
 {{/if}}
 		</div>
 	</div>

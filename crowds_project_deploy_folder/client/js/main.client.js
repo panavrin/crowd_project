@@ -1,8 +1,11 @@
 ace_editor = null;
-minNumLineRegion = 5;
+minNumLineRegion = 7;
 editor_rendered = false;
 //accordionRegionRenedered = false;
 Session.set("TASK_ID_IN_CREATION",null);
+Session.set("MY_LOCKED_REGION", null);
+Session.set("LOCK", false);
+"oZkoQypSJJjM7PBGL"
 task_view_flag = null;
 
 var Range = require('ace/range').Range;
@@ -76,7 +79,7 @@ if (Meteor.isClient) {
           updateRegions = function(){
             var gutterStart = $("#editor .ace_gutter :first-child");
             var firstLine = gutterStart.children().first();
-            var numFirstLine = parseInt(firstLine.text());
+            var numFirstLine = parseInt(firstLine.text())-1;
             var margin_top = gutterStart.css("margin-top");
             lineHeight = firstLine.css("height");
             lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
@@ -97,53 +100,95 @@ if (Meteor.isClient) {
 
           ace.renderer.on("afterRender", function(e) {
             editor_rendered = true;
-            if (regionUpdated) {
+            //if (regionUpdated) {
               updateRegions();
-            }
+            //}
             regionUpdated = false;
           });
 
 
           ace_editor.getSession().selection.on('changeSelection', function(e) {
+            if (!Session.get("LOCK"))
+              return;
             var region_id = Session.get("MY_LOCKED_REGION");
             var start_region_line = parseInt($("#"+region_id).attr("start")),
-              end_region_line = parseInt($("#"+region_id).attr("end")),
-              startLine = e.data.range.start.row,
-              endLine = e.data.range.end.row;
+              end_region_line = parseInt($("#"+region_id).attr("end"));
+              var cursorPosition =  ace_editor.selection.getRange();
+              if ( cursorPosition.start.row < start_region_line+1 || cursorPosition.end.row>=end_region_line-1)
+              {
+                ace_editor.setReadOnly(true);
+                if(DEBUG) console.log("cursor out of range start : " +start_region_line +",end_region_line:" + end_region_line );
+              }
+              else{
+                ace_editor.setReadOnly(false);
+                if(DEBUG) console.log("cursor in range");
+              }
           });
           // idea is to make it readonly when selection is outside my locked region
           ace_editor.getSession().selection.on('changeCursor', function(e) {
+            if (!Session.get("LOCK"))
+              return;
             var region_id = Session.get("MY_LOCKED_REGION");
             var start_region_line = parseInt($("#"+region_id).attr("start")),
-              end_region_line = parseInt($("#"+region_id).attr("end")),
-              startLine = e.data.range.start.row,
-              endLine = e.data.range.end.row;
+              end_region_line = parseInt($("#"+region_id).attr("end"))
+            var cursorPosition =  ace_editor.selection.getRange();
+            if ( cursorPosition.start.row < start_region_line+1 || cursorPosition.end.row>=end_region_line-1)
+            {
+              ace_editor.setReadOnly(true);
+              if(DEBUG) console.log("cursor out of range");
 
+            }
+            else{
+              ace_editor.setReadOnly(false);
+              if(DEBUG) console.log("cursor in range");
+            }
           });
           ace_editor.on("change", function(e,v,g){
-            // make sure I am locking something.
-              // how do I discriminate two thing.
-            var region_id = Session.get("MY_LOCKED_REGION");
-            var start_region_line = parseInt($("#"+region_id).attr("start")),
-              end_region_line = parseInt($("#"+region_id).attr("end")),
-              startLine = e.data.range.start.row,
-              endLine = e.data.range.end.row;
-            if (ace_editor.curOp && ace_editor.curOp.command.name) console.log("user change");
-              else console.log("other change")
+              if (!Session.get("LOCK"))
+                return;
+// first let's make sure if the cursor falls into the locked region
+              var region_id = Session.get("MY_LOCKED_REGION");
+              var start_region_line = parseInt($("#"+region_id).attr("start")),
+                end_region_line = parseInt($("#"+region_id).attr("end")),
+                startLine = e.data.range.start.row,
+                endLine = e.data.range.end.row;
 
-            if (startLine < start_region_line || startLine >= end_region_line){
-              if(DEBUG)console.log("not my region");
-              if (ace_editor.curOp && ace_editor.curOp.command.name){
-                if (e.data.action == "insertText"){
-                  /*e.data.range.start.row = start_region_line;
-                  e.data.range.start.col = 0;
-                  e.data.range.end.row = start_region_line;
-                  e.data.range.end.col = 0;
-                  e.data.text = ""*/
-                  setTimeout(function(){ace_editor.undo();},0);
-                }
+              if ( startLine < start_region_line || startLine >=end_region_line)
+              {
+                return;
+                if (DEBUG)console.log("This is cursor move due to somebody else. somebody else probably  ");
+                ace_editor.getSession().doc.insertLines(startLine,[""]);
+
+          //      if(DEBUG) alert("this should not happen : Cursor position out of range. ");
               }
-            }
+
+              var changedLine = endLine - startLine;
+
+              if (e.data.action == "insertLines" || e.data.action == "insertText"){
+
+              }
+              else if (e.data.action == "removeLines" || e.data.action == "removeText"){
+                changedLine = -changedLine;
+              }
+              else{
+                if(DEBUG) alert ("unhandeld change action:" + e.data.action);
+              }
+              if(DEBUG) console.log (region_id + " changedLine:" + changedLine);
+
+
+              if (changedLine == 0)
+                return;
+
+                regionUpdated = true;
+              Meteor.call("updateRegionLines", region_id, changedLine, function(error,result){
+                if(error){
+                  if(DEBUG) console.error(error);
+                }
+                updateRegions();
+
+              })
+              // time to update regions
+
 
           });
 
@@ -192,6 +237,12 @@ if (Meteor.isClient) {
       // stop the link from causing a pagescroll
       return false;
     });
+  })
+
+  Template.cm_region.helpers({
+    minusOne: function(num){
+      return num-1;
+    }
   })
 
   Template.cm_region.onRendered(function(){
@@ -274,8 +325,12 @@ if (Meteor.isClient) {
             }
         });
         // programmtically add lines
-        var emptylines = Array(minNumLineRegion).join('.').split('.') ;
+
+        var emptylines = Array(minNumLineRegion-2).join('.').split('.') ;
+        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + "  end  (Do not modify below this line. )"]);
         ace_editor.getSession().doc.insertLines(start,emptylines);
+        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + " start (Do not modify above this line. )"]);
+
         $(".new_region").addClass("hidden");
 //        $('.accordion_region').accordion("refresh");
         // insert region and open the dialog again.
@@ -442,18 +497,19 @@ if (Meteor.isClient) {
         alert("task id is null for this button something is wrong. ")
         return;
       }
-
       Meteor.call("lockTask", task_id, Meteor.user().username, function(error, locked_region){
         if (error){
           alert(error);
         }
         else{
+
           $(event.target).removeClass("btn-success");
           $(event.target).removeClass("btn-danger");
 
           Session.set("LOCK", true);
           Session.set("MY_LOCKED_REGION", locked_region);
-          $("#" + locked_region).removeClass("block_pointing");
+          Session.set("MY_LOCKED_TASK", task_id);
+          $("#" + locked_region).removeClass("blurred");
 
           ace_editor.setReadOnly(false);
         }
@@ -462,7 +518,7 @@ if (Meteor.isClient) {
 
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      if (task_id == null){
+      if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
       }
@@ -473,7 +529,10 @@ if (Meteor.isClient) {
         else{
           Session.set("LOCK", false);
           Session.set("MY_LOCKED_REGION", null);
+          Session.set("MY_LOCKED_TASK", null);
           ace_editor.setReadOnly(true);
+          $(".existing_region").removeClass("blurred");
+
         }
       });
 
@@ -490,6 +549,8 @@ if (Meteor.isClient) {
           alert(error);
         }
         else{
+          $(".existing_region").removeClass("blurred");
+
           Session.set("LOCK", false);
           Session.set("MY_LOCKED_REGION", null);
           ace_editor.setReadOnly(true);
@@ -544,13 +605,17 @@ if (Meteor.isClient) {
     }*/
   });
 
+  Template.registerHelper("isWorkingNow",function(){
+    return (Session.get("LOCK") == true)
+  });
+  Template.registerHelper("notMine",function(region_id){
+    return (Session.get("MY_LOCKED_REGION") != region_id)
+  });
+
   Template.cm_task.helpers({
     isOwner:function(user_name){
       if(DEBUG) console.log(user_name + "," +Meteor.userId().username + "," + (user_name == Meteor.userId().username));
         return (user_name == Meteor.user().username);
-    },
-    isWorkingNow:function(){
-      return (Session.get("LOCK") == true)
     },
     isTaskOpen: function(_state){
       if ( _state == "open"){
@@ -648,10 +713,27 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.body.onRendered(function(){
+    window.onbeforeunload = function(){
+
+      if ( Session.get("TASK_ID_IN_CREATION") != null ){
+        Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
+        Session.set("TASK_ID_IN_CREATION",null);
+      }
+
+      if (Session.get("LOCK") == true){
+        Meteor.call("unlockTask", Session.get("MY_LOCKED_TASK"), Meteor.user().username);
+        Session.set("MY_LOCKED_REGION", null);
+        Session.set("MY_LOCKED_TASK", null);
+        Session.set("LOCK", false);
+      }
+
+    };
+
+  })
+
 
   Meteor.startup(function(){
-
-
     $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
       if(DEBUG)console.log(error);
       $.getScript('http://www.skulpt.org/static/skulpt-stdlib.js', function(error){
@@ -662,7 +744,7 @@ if (Meteor.isClient) {
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/chance/0.5.6/chance.min.js', function(){
     // script has loaded
       if(DEBUG) console.log("chance script imported");
-      });
+    });
   });
 
 }

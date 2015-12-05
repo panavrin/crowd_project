@@ -8,6 +8,12 @@ html, body {
   padding:0px;
 }
 
+.blurred{
+    background:rgba(255,255,240,0.8)!important;
+    border: 0px!important;
+    border-radius: 0px!important;
+}
+
 .wordwrap {
    white-space: pre-wrap;      /* CSS3 */
    white-space: -moz-pre-wrap; /* Firefox */
@@ -119,9 +125,6 @@ fieldset .margin-top{
   background: #a0ffa0!important;
 }
 
-.block_pointing{
-  pointer-events:none;
-}
 
 .region{
   position:absolute;

@@ -10,6 +10,7 @@ if (Meteor.isServer) {
   });
 
   Meteor.methods({
+
     lockTask: function(taskId, username){
       var task = Tasks.findOne(taskId);
       if (task == null){
@@ -30,6 +31,22 @@ if (Meteor.isServer) {
         }
       });
       return task.region
+    }
+    ,
+    updateRegionLines : function(region_id, line){
+      var region = Regions.findOne(region_id);
+      if (region == undefined){
+        if(DEBUG) console.error("region id :" + region_id);
+        throw new Meteor.Error("region undefined  " + region_id);
+      }
+      Regions.update({ start: {$gte: region.end}}, { $inc: { start: line, end: line} }, {multi: true}, function(error, num){
+        if(DEBUG) console.log("region shifted:" + num);
+        if(error) throw new Meteor.Error("Cannot shift the regions below " + region_id + ",num" + num);
+      });
+      return Regions.update({ _id: region_id}, { $inc: { end: line} }, {multi: true}, function(error, num){
+        if(DEBUG) console.log("locked region update completed:" + region_id + " line:" + line + " updated:" +num);
+        if(error) throw new Meteor.Error("Cannot update the region " + region_id);``
+      });
     }
   });
 
