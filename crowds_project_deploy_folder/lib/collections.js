@@ -8,7 +8,7 @@ DEBUG  = true;
 Meteor.methods({
 
 
-  logTask: function(taskID, buttonClick, userName ){
+  logTask: function(taskID, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
     if (! Meteor.userId()) {
