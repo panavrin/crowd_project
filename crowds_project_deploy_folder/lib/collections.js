@@ -4,10 +4,15 @@ Messages = new Meteor.Collection("messages");
 Rooms = new Meteor.Collection("rooms");
 
 
+
+
 DEBUG  = true;
 Meteor.methods({
 
-
+  removeAll: function(){
+    return (Tasks.remove({}) & (Messages.remove({})) & (Regions.remove({})));
+  },
+  
   logTask: function(taskID, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel

@@ -1,6 +1,8 @@
 if (Meteor.isServer) {
   if(DEBUG) console.log("server js code is running");
 
+
+
   Meteor.publish("tasks", function () {
     return Tasks.find({});
   });

@@ -1,14 +1,19 @@
 
+
+
 <template name="cm_task_view">
 	<div class = "container-fluid">
 		<div class = "row">
 			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat New Task
 			</button>
+
+			<button id="clean" class = "btn btn-warning"> Clean UP! </button>
+
     	<button class="accordion-expand-all btn btn-default" href="#">Collapse All</button>
 
 		</div>
 		<div class = "row">
-			<div class="accordion_region ui-accordion ui-widget ui-helper-reset">
+			<div id="tasklist" class="accordion_region ui-accordion ui-widget ui-helper-reset">
 				{{#each allregions}}
 				  {{> cm_region_task_list}}
 				{{/each}}

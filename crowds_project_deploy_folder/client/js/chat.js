@@ -24,18 +24,23 @@ if (Meteor.isClient) {
     console.log(Meteor.user().username);
     Messages.insert({user: Meteor.user().username, msg: el.value, ts: new Date(), room: Session.get("roomname")});
     el.value = "";
+
     // el.focus();
   };
   Template.message.onRendered(function(){
+
+
     $("#messages").scrollTop($("#messages")[0].scrollHeight);
   });
 
   Template.messages.helpers({
     messages: function() {
+
       return Messages.find({room: Session.get("roomname")}, {sort: {ts: 1}});
     },
 	roomname: function() {
       return Session.get("roomname");
+
     }
   });
 

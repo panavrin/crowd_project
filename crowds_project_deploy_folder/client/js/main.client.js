@@ -7,8 +7,14 @@ Session.set("MY_LOCKED_REGION", null);
 Session.set("LOCK", false);
 "oZkoQypSJJjM7PBGL"
 task_view_flag = null;
+admin_mode = null;
 
 var Range = require('ace/range').Range;
+
+
+
+
+
 
 //version = Meteor.collection("version_number")
 if (!Meteor.isClient)
@@ -18,7 +24,8 @@ if (Meteor.isClient) {
 
   Meteor.subscribe("tasks");
   Meteor.subscribe("regions");
-
+  // debugger;
+  // console.log(Meteor.user().username);
   Template.registerHelper("tasksinregion", function(region_id){
       return Tasks.find( {region:region_id}, {sort: {createdAt:-1}});
   });
@@ -31,7 +38,12 @@ if (Meteor.isClient) {
       return Regions.find({},{sort: {start: 1}});
   });
 
+
   Template.cm_task_view.onRendered(function () {
+
+    // if (Meteor.user().username = "admin")
+    //   $('button#cleanup').hide();
+    //
   // Use the Packery jQuery plugin
     if(DEBUG) console.log("task_on_rendered");
     $("#cm_dialog_title").keyup(updateTask);
@@ -51,8 +63,17 @@ if (Meteor.isClient) {
       }
   });
   });
+  //
+  // $("button#clean").on('click',function (event) {
+  //     ace_editor.setValue("");
+  //   });
+
+
+
 
   Template.cm_code_editor.helpers({
+
+
     config: function() {
       return function(ace) {
         if(DEBUG)console.log("config");
@@ -68,6 +89,8 @@ if (Meteor.isClient) {
         return cm.setOption("indentWithTabs", true);*/
         ace.setTheme('ace/theme/terminal');
         ace.getSession().setMode("ace/mode/python");
+
+
         ace.setShowPrintMargin(false);
         ace.getSession().setUseWrapMode(false);
         regionUpdated = true;
@@ -75,6 +98,9 @@ if (Meteor.isClient) {
         ace.getSession().on('changeScrollTop', function(scroll) {
           regionUpdated = true;
         });
+
+
+
         if ( task_view_flag){
           updateRegions = function(){
             var gutterStart = $("#editor .ace_gutter :first-child");
@@ -205,8 +231,11 @@ if (Meteor.isClient) {
           ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
         if(DEBUG)console.log("setMode");
       }
-    }
+    },
+
+
   });
+
 
   Template.cm_region_task_list.onRendered(function(){
   //  $('.accordion_region').accordion("refresh");
@@ -303,6 +332,7 @@ if (Meteor.isClient) {
 
 
   Template.cm_regions.events({
+
       "click .new_region button": function (event) {
         var start = parseInt($(event.target).attr("start")),
         end = parseInt($(event.target).attr("end"));
@@ -354,6 +384,14 @@ if (Meteor.isClient) {
     $(".dropdown-menu li a").click(dropDownClickHandler);
     $(".accordion-expand-all").data('isAllOpen',true);
 
+    if (Meteor.user().username != "admin"){
+      console.log("shi");
+        $("#clean").css('visibility', 'hidden');
+        // $(".register").css('visibility', 'visible');
+
+    }
+
+
     $(".accordion-expand-all").click(function(event){
       var isAllOpen = $(this).data('isAllOpen');
       var taskAreas = $('.accordion_task .ui-accordion-content ');
@@ -388,10 +426,13 @@ if (Meteor.isClient) {
       var expandLink = $('.accordion-expand-all');
       expandLink.text('Expand All').data('isAllOpen', false);
     });
+
+
 */
 //call this
 // function (_title, _desc, _deliverable, _region_id) {
   //
+
 
 
     function updateTips( t ) {
@@ -563,7 +604,25 @@ if (Meteor.isClient) {
 
 
   });
+
   Template.cm_task_view.events({
+
+
+
+
+    "click #clean": function(event){
+      if (confirm('Clean up all editing')) {
+          ace_editor.setValue("")
+          Meteor.call('removeAll');
+          //  Tasks.remove({});
+          //  Messages.remove({});
+        //  _.each(Messages.find().fetch(), function(item){
+        //
+        // });
+      } else {
+          // Do nothing!
+      }
+    },
 
     "click #btn_creat_task": function (event) {
 
@@ -702,11 +761,23 @@ if (Meteor.isClient) {
 
   Template.body.helpers({
     taskViewMode : function(){
+
       if (task_view_flag == null ){
-        task_view_flag = location.search.split('task_view_flag=')[1];
+        task_view_flag = location.search.split("&")[0].replace("?","").split("=")[1]
         task_view_flag = task_view_flag == "true" ? true : false
       }
+      // console.log(location.search.split("&")[1].split("=")[1]);
+      console.log(task_view_flag);
       return task_view_flag;
+    },
+    admin: function(){
+
+      if (admin_mode==null){
+        admin_mode = location.search.split("&")[1].split("=")[1]
+        admin_mode = admin_mode = admin_mode == "true" ? true : false
+      }
+      console.log(admin_mode);
+      return admin_mode
     },
     loggedin : function(){
 
@@ -731,6 +802,7 @@ if (Meteor.isClient) {
     };
 
   })
+
 
 
   Meteor.startup(function(){

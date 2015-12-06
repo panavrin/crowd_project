@@ -2,9 +2,11 @@
   <div class = "region new_region hidden" start = 1 end = 1>
     <button class = "btn btn-warning" start = 1 end = 1> Create New Region Here. ↑</button>
   </div>
-{{#each allregions}}
-  {{> cm_region}}
-{{/each}}
+  <div id="allRegions">
+    {{#each allregions}}
+      {{> cm_region}}
+    {{/each}}
+  </div>
 </template>
 
 <template name="cm_region">
