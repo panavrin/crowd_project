@@ -97,7 +97,13 @@
 			</p>
 			<p>
 				{{#if isTaskOpen state}}
-	        <button task_id = "{{_id}}" class = "task_lock_button btn btn-success btn-block">Start this task!</button>
+					{{#if isWorkingNow}}
+						you are working now on this.
+					{{else}}
+						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start the Task</button>
+					{{/if}}
+						<!--<button task_id = "{{_id}}" class = "task_lock_button btn btn-success">Vote for Delete</button>
+						<button task_id = "{{_id}}" class = "task_lock_button btn btn-success"></button>-->
 					{{else}}
 						{{#if isTaskLocked state}}
 						 <!-- by owner or not-->
@@ -105,7 +111,7 @@
 						 <p>
 			 				 You are currently working on this.
 			 			</p>
-							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">Leave for now</button>
+							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-default">Leave for now</button>
 						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
 							{{else}}
 							<button  class = "right_float btn btn-danger btn-block">{{lockedby}} is working on this...</button>
