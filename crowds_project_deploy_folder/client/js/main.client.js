@@ -31,74 +31,6 @@ if (Meteor.isClient) {
   Template.cm_task_view.onRendered(function () {
   // Use the Packery jQuery plugin
     if(DEBUG) console.log("task_on_rendered");
-<<<<<<< HEAD
-    $( ".accordion_region" ).accordion({
-      collapsible: true,
-      heightStyle: "content",
-      active:true,
-      header:"h2",
-      beforeActivate: function(event, ui) {
-           // The accordion believes a panel is being opened
-          if (ui.newHeader[0]) {
-              var currHeader  = ui.newHeader;
-              var currContent = currHeader.next('.ui-accordion-content');
-           // The accordion believes a panel is being closed
-          } else {
-              var currHeader  = ui.oldHeader;
-              var currContent = currHeader.next('.ui-accordion-content');
-          }
-           // Since we've changed the default behavior, this detects the actual status
-          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
-
-           // Toggle the panel's header
-          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top',!isPanelSelected).attr('aria-selected',((!isPanelSelected).toString()));
-
-          // Toggle the panel's icon
-          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e',isPanelSelected).toggleClass('ui-icon-triangle-1-s',!isPanelSelected);
-
-           // Toggle the panel's content
-          currContent.toggleClass('accordion-content-active',!isPanelSelected)
-          if (isPanelSelected) { currContent.slideUp(); }  else { currContent.slideDown(); }
-
-          return false; // Cancels the default action
-      }
-    });
-    accordionRegionRenedered = true;
-    $( ".accordion_task.not-rendered" ).accordion({
-      collapsible: true,
-      heightStyle: "content",
-      active:true,
-      header:"h3",
-      beforeActivate: function(event, ui) {
-           // The accordion believes a panel is being opened
-          if (ui.newHeader[0]) {
-              var currHeader  = ui.newHeader;
-              var currContent = currHeader.next('.ui-accordion-content');
-           // The accordion believes a panel is being closed
-          } else {
-              var currHeader  = ui.oldHeader;
-              var currContent = currHeader.next('.ui-accordion-content');
-          }
-           // Since we've changed the default behavior, this detects the actual status
-          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
-
-           // Toggle the panel's header
-          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top',!isPanelSelected).attr('aria-selected',((!isPanelSelected).toString()));
-
-          // Toggle the panel's icon
-          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e',isPanelSelected).toggleClass('ui-icon-triangle-1-s',!isPanelSelected);
-
-           // Toggle the panel's content
-          currContent.toggleClass('accordion-content-active',!isPanelSelected)
-          if (isPanelSelected) { currContent.slideUp(); }  else { currContent.slideDown(); }
-
-          return false; // Cancels the default action
-      }
-    });
-
-    $( ".accordion_task.not-rendered" ).removeClass("not-rendered");
-
-=======
     $("#cm_dialog_title").keyup(updateTask);
     $("#cm_dialog_delverbale").keyup(updateTask);
     $("#cm_dialog_desc").keyup(updateTask);
@@ -115,7 +47,6 @@ if (Meteor.isClient) {
           event.preventDefault();
       }
   });
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
   });
 
   Template.cm_code_editor.helpers({
@@ -164,34 +95,12 @@ if (Meteor.isClient) {
             });
           }
 
-<<<<<<< HEAD
-        updateRegions = function(){
-          var gutterStart = $("#editor .ace_gutter :first-child");
-          var firstLine = gutterStart.children().first();
-          var numFirstLine = parseInt(firstLine.text());
-          var margin_top = gutterStart.css("margin-top");
-          lineHeight = firstLine.css("height");
-          lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
-
-          margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
-          console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
-          maxLineNumber = -1;
-          $(".region").each(function(){
-            if(DEBUG)console.log("region");
-            var start = parseInt($(this).attr("start")),
-            end = parseInt($(this).attr("end"));
-            $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
-            $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
-            if (maxLineNumber < end)
-              maxLineNumber = end;
-=======
           ace.renderer.on("afterRender", function(e) {
             editor_rendered = true;
             if (regionUpdated) {
               updateRegions();
             }
             regionUpdated = false;
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
           });
         }
       };
@@ -253,9 +162,6 @@ if (Meteor.isClient) {
     }
   })
 
-<<<<<<< HEAD
-
-=======
   function updateTask(state){
     if (Session.get("TASK_ID") == null){
       if (DEBUG) alert("task ID null, it should not happen. ");
@@ -298,7 +204,6 @@ if (Meteor.isClient) {
     updateTask();
 
   }
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
 
 
   Template.cm_regions.events({
@@ -313,10 +218,6 @@ if (Meteor.isClient) {
           region_name = chance.first();
         }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
         Meteor.call("addRegion", start, start + minNumLineRegion, region_name, function(error, result){
             if (error){
               console.log(error);
@@ -324,10 +225,7 @@ if (Meteor.isClient) {
             else{
               if(DEBUG) console.log("region_id: :" + result);
               $("#cm_dialog_region_dropdown_btn").val(result);
-<<<<<<< HEAD
-=======
               updateTask();
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
             }
         });
         // programmtically add lines
@@ -339,44 +237,10 @@ if (Meteor.isClient) {
         dialog.dialog('option', 'position',{of: "#cm_code_editor"});
         dialog.dialog( "open" );
         $("#cm_dialog_region_dropdown_btn").text("Region " + region_name);
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
       }
 
   });
 
-<<<<<<< HEAD
-    if($(this).attr("value") == "new"){
-      $(".new_region").removeClass("hidden");
-      dialog.dialog( "close" );
-      $(this).next('ul').toggle();
-    }
-    else{
-      $("#cm_dialog_region_dropdown_btn").text($(this).text());
-      $("#cm_dialog_region_dropdown_btn").val($(this).attr("value"));
-      $(this).next('ul').toggle();
-    }
-
-    // start to add new tasks
-
-    var title_store = $("#cm_dialog_title").val();
-    desc_store = $("#cm_dialog_desc").val();
-    deliverable_store = $("#cm_dialog_delverbale").val();
-
-    Meteor.call('updateTask', title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result);
-      }
-    });
-  }
-
-=======
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
   Template.cm_task_view.onRendered(function(){
     if(DEBUG)console.log(" cm_task_view onRendered");
 
@@ -389,8 +253,6 @@ if (Meteor.isClient) {
 
     $(".dropdown-menu li a").click(dropDownClickHandler);
 
-<<<<<<< HEAD
-=======
 
     $(".accordion-expand-all").data('isAllOpen',true);
     $(".accordion-expand-all").click(function(event){
@@ -433,7 +295,6 @@ if (Meteor.isClient) {
   //
 
 
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
     function updateTips( t ) {
       tips
         .text( t )
@@ -477,11 +338,7 @@ if (Meteor.isClient) {
         desc_store = $("#cm_dialog_desc").val();
         deliverable_store = $("#cm_dialog_delverbale").val();
 
-<<<<<<< HEAD
-        Meteor.call('addTask', title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(), function (error, result) {
-=======
         Meteor.call('updateTask', Session.get("TASK_ID"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), "open",  function (error, result) {
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
           if (error) {
             if(DEBUG)console.log(error);
           } else {
@@ -513,33 +370,16 @@ if (Meteor.isClient) {
             if(DEBUG) console.log("a task should be created")
             dialog.dialog("close");
             resetDialog();
-<<<<<<< HEAD
-
-            Meteor.call('addTask', "", "", "", "", function (error, result) {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log(result);
-                createdTaskId = result;
-              }
-            });
-=======
             Session.set("TASK_ID",null)
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
           }
         },
         Cancel: function() {
           dialog.dialog( "close" );
           resetDialog();
           // remove task
-<<<<<<< HEAD
-          createdTaskId = null;
-          Meteor.call('deleteTask',createdTaskId);
-=======
           Meteor.call('deleteTask',Session.get("TASK_ID"));
           Session.set("TASK_ID",null)
 
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
         }
       },
       close: function() {

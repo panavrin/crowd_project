@@ -6,6 +6,24 @@ Rooms = new Meteor.Collection("rooms");
 
 DEBUG  = true;
 Meteor.methods({
+
+
+  logTask: function(taskID, buttonClick, userName ){
+    //buttonClick is the store which button clicks.
+    //The options are: lock, unlock, cancel
+    if (! Meteor.userId()) {
+      throw new Meteor.Error("not-authorized");
+    }
+    var now = new Data();
+    return Tasks.insert({
+      taskID: taskID,
+      state: buttonClick,
+      operator: Meteor.userId(),
+      username: Meteor.user().username,
+      updatedAt: now
+    });
+  },
+
   addTask: function (_title, _desc, _deliverable, _region_id) {
     // Make sure the user is logged in before inserting a task
     if (! Meteor.userId()) {
@@ -63,16 +81,7 @@ Meteor.methods({
       // If the task is private, make sure only the owner can delete it
       throw new Meteor.Error("not-authorized");
     }
-<<<<<<< HEAD
 
-    return Tasks.remove(taskId);
-  },
-  updateTask: function(taskId, _title, _desc, _deliverable, _region_id){
-    if (! Meteor.userId()) {
-      throw new Meteor.Error("not-authorized");
-    }
-    if(DEBUG) console.log("updated:" + taskId);
-=======
     return Tasks.remove(taskId);
   },
   updateTask: function(taskId, _title, _desc, _deliverable, _region_id,_state){
@@ -80,20 +89,14 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
     //if(DEBUG) console.log("updated:" + taskId);
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
     var now = new Date();
     return Tasks.update({_id:taskId},{$set:{
         title: _title,
         desc:_desc,
         deliverable:_deliverable,
-<<<<<<< HEAD
-        createdAt: now,
-        region: _region_id,
-        // state: _state, // state can be : open, available, locked,
-=======
+
         region: _region_id,
         state: _state, // state can be : open, available, locked,
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
         updatedAt: now
       }
     });
@@ -134,6 +137,10 @@ Meteor.methods({
     // update other region's start/end numbers
     //console.log(Tasks.find({ start: {$gt: _end}}));
   }
+
+
+
+
 /*  shiftRegion: function () {
     // Make sure the user is logged in before inserting a task
     if (! Meteor.userId()) {
