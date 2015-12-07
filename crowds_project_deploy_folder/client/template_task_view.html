@@ -7,7 +7,9 @@
 			<button id = "btn_creat_task" class = "btn btn-default"> + 		Creat New Task
 			</button>
 
-			<button id="clean" class = "btn btn-warning"> Clean UP! </button>
+				{{#if isAdmin}}
+				<button	id="clean" class = "btn btn-warning"> Clean UP! </button>
+				{{/if}}
 
     	<button class="accordion-expand-all btn btn-default" href="#">Collapse All</button>
 

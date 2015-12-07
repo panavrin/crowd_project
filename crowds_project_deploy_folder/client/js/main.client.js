@@ -30,6 +30,15 @@ if (Meteor.isClient) {
       return Tasks.find( {region:region_id}, {sort: {createdAt:-1}});
   });
 
+  Template.registerHelper("isAdmin", function(){
+      if ( Meteor.user()!= null && Meteor.user().username == "admin" )
+      {
+        return true;
+      }
+      return false;
+    }
+  );
+
   Template.registerHelper("alltasks", function(){
       return Tasks.find({});
   });
@@ -384,14 +393,6 @@ if (Meteor.isClient) {
     $(".dropdown-menu li a").click(dropDownClickHandler);
     $(".accordion-expand-all").data('isAllOpen',true);
 
-    if (Meteor.user().username != "admin"){
-      console.log("shi");
-        $("#clean").css('visibility', 'hidden');
-        // $(".register").css('visibility', 'visible');
-
-    }
-
-
     $(".accordion-expand-all").click(function(event){
       var isAllOpen = $(this).data('isAllOpen');
       var taskAreas = $('.accordion_task .ui-accordion-content ');
@@ -672,6 +673,7 @@ if (Meteor.isClient) {
   });
 
   Template.cm_task.helpers({
+
     isOwner:function(user_name){
       if(DEBUG) console.log(user_name + "," +Meteor.userId().username + "," + (user_name == Meteor.userId().username));
         return (user_name == Meteor.user().username);
