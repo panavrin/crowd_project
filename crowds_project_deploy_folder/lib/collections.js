@@ -12,7 +12,7 @@ Meteor.methods({
   removeAll: function(){
     return (Tasks.remove({}) & (Messages.remove({})) & (Regions.remove({})));
   },
-  
+
   logTask: function(taskID, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
@@ -60,7 +60,7 @@ Meteor.methods({
       throw new Meteor.Error("You cannot start the task. It is not in open state.");
     }
     return Tasks.update({_id:taskId},{$set:{
-        state: "open",
+        state: "task_open",
         lockedby:null
       }
     });

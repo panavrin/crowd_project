@@ -84,18 +84,18 @@
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>
-				Description
+				<strong>Description</strong>
 				<p>{{desc}}</p>
 			</p>
 			<p>
 				{{#if deliverable}}
-	        Deliverable
+	        <strong>Deliverable</strong>
 					<p>{{deliverable}}</p>
 	    	{{/if}}
 			</p>
 			<p>
 				{{#if username}}
-	        Creator
+	        <strong>Creator</strong>
 					<p>{{username}}</p>
 	    	{{/if}}
 			</p>
@@ -105,7 +105,7 @@
 			<p>
 				{{#if isTaskOpen state}}
 					{{#if isWorkingNow}}
-						you are working now on this.
+						Well, you are busy with something else.
 					{{else}}
 						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start the Task</button>
 					{{/if}}
@@ -121,7 +121,7 @@
 							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-default">Leave for now</button>
 						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
 							{{else}}
-							<button  class = "right_float btn btn-danger btn-block">{{lockedby}} is working on this...</button>
+							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is working on this...</button>
 							{{/if}}
 						{{/if}}
 				{{/if}}

@@ -18,7 +18,7 @@ if (Meteor.isServer) {
       if (task == null){
         throw new Meteor.Error("Cannot find the task : " + taskId);
       }
-      if(task.state!="open"){
+      if(task.state!="task_open"){
         throw new Meteor.Error("You cannot start the task. It is not in open state.");
       }
       if(DEBUG) console.log("LOCK:" + username + "," +taskId + ","+task.region);

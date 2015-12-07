@@ -265,7 +265,7 @@ if (Meteor.isClient) {
   Template.cm_task.onRendered(function(){
     this.$(".accordion-header").unbind('click');
     this.$(".accordion-header").click(function(event){
-      this.$(".accordion-header")
+
       var panel = $(this).next();
       var isOpen = panel.is(':visible');
       // open or close as necessary
@@ -275,6 +275,8 @@ if (Meteor.isClient) {
       // stop the link from causing a pagescroll
       return false;
     });
+    this.$(".accordion-header").next().slideUp();
+
   })
 
   Template.cm_region.helpers({
@@ -366,9 +368,9 @@ if (Meteor.isClient) {
         // programmtically add lines
 
         var emptylines = Array(minNumLineRegion-2).join('.').split('.') ;
-        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + "  end  (Do not modify below this line. )"]);
+        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + " end "]);
         ace_editor.getSession().doc.insertLines(start,emptylines);
-        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + " start (Do not modify above this line. )"]);
+        ace_editor.getSession().doc.insertLines(start,["# region " + region_name + " start "]);
 
         $(".new_region").addClass("hidden");
 //        $('.accordion_region').accordion("refresh");
@@ -479,7 +481,7 @@ if (Meteor.isClient) {
         desc_store = $("#cm_dialog_desc").val();
         deliverable_store = $("#cm_dialog_delverbale").val();
 
-        Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), "open",  function (error, result) {
+        Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), "task_open",  function (error, result) {
           if (error) {
             if(DEBUG)console.log(error);
           } else {
@@ -608,9 +610,6 @@ if (Meteor.isClient) {
 
   Template.cm_task_view.events({
 
-
-
-
     "click #clean": function(event){
       if (confirm('Clean up all editing')) {
           ace_editor.setValue("")
@@ -641,7 +640,7 @@ if (Meteor.isClient) {
           if (error) {
             console.log(error);
           } else {
-            console.log(result);
+            if(DEBUG)console.log("new task id is assigned:" + result);
             Session.set("TASK_ID_IN_CREATION",result);
           }
         });
@@ -679,7 +678,7 @@ if (Meteor.isClient) {
         return (user_name == Meteor.user().username);
     },
     isTaskOpen: function(_state){
-      if ( _state == "open"){
+      if ( _state == "task_open"){
         return true;
       }
       return false;

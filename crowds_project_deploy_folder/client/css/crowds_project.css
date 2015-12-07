@@ -100,33 +100,21 @@ fieldset .margin-top{
 .tasks_regions{
   overflow:auto;
 }
-<<<<<<< HEAD
-=======
 /* task state */
 .in_creation{
-  background: #ffa0a0!important;
+  background: #800029!important;
+  color:white!important;
 }
 
-.region_open{
-  background: #ffa0a0!important;
-}
-
-.region_locked{
-  background: #ff0000!important;
-}
-
-.region_locked_by_me{
-  background: #00ff00!important;
-}
-
-.open{
-  background: #ffffa0!important;
+.task_open{
+  background: #006622!important;
+  color:white!important;
 }
 
 .in_progress{
-  background: #a0ffa0!important;
+  background: #000066!important;
+  color:white!important;
 }
->>>>>>> 570c1960877406cfe21c2709274aa19431721bed
 
 
 .region{
@@ -157,6 +145,7 @@ fieldset .margin-top{
 .existing_region {
   z-index:5;
   border: 1px solid rgba(110,255,74,1.0);
+  color : rgba(255,255,255,0.5);
 }
 
 #cm_code_editor{
