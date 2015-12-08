@@ -143,10 +143,10 @@ if (Meteor.isClient) {
                 endLinePixel = top + height;
               }
             });
-            if ( endLinePixel < bottomPixel){
+      /*      if ( endLinePixel < bottomPixel){
               $("#region_masker").css("top", endLinePixel + "px");
-              $("#region_masker").css("bottom", bottomPixel);
-            }
+              $("#region_masker").css("bottom", bottomPixel + "px");
+            }*/
 
           }
 
@@ -254,7 +254,7 @@ if (Meteor.isClient) {
         }
 
         if (ace_editor.getValue().length==0)
-          ace_editor.setValue("# code monkey editors Ver1. (python)",-1)
+          ace_editor.setValue("from document import *\ninput = getElementById('python_data').value\nprint input",-1)
         if(DEBUG)console.log("setMode");
       }
     },
@@ -283,6 +283,17 @@ if (Meteor.isClient) {
           .trigger(isOpen? 'hide': 'show');
       // stop the link from causing a pagescroll
       return false;
+    });
+
+    this.$(".accordion-header").hover(function(event){
+      var region_id = $(this).attr("region_id");
+      $("#" + region_id).toggleClass("highlighted_region");
+    });
+
+    this.$(".go_button").click(function(event){
+      var start = parseInt($(event.target).attr("region_start_line"));
+      ace_editor.scrollToLine(start, true, true);
+      event.stopPropagation();
     });
   })
 
@@ -319,7 +330,14 @@ if (Meteor.isClient) {
         ace_editor.removeLines();
         if(DEBUG) alert("lines programtically removed! In general, this should not happen.  ")
       }
+
     }
+    this.$(".innertext_region").hover(function(){
+      var region_id = $(this).parent().attr("id");
+      $(this).toggleClass("highlight_text")
+      $("#region_acc_" + region_id).toggleClass("highlighted_region2");
+
+    })
   })
 
   function updateTask(state){
@@ -499,7 +517,7 @@ if (Meteor.isClient) {
       var valid = true;
       allFields.removeClass( "ui-state-error" );
 
-      valid = valid &&  checkRegion($("#cm_dialog_region_dropdown_btn"));
+      valid = valid && checkRegion($("#cm_dialog_region_dropdown_btn"));
       valid = valid && checkLength(title, "Title", 0, 140);
       valid = valid && checkLength(desc, "Description", 0, 500);
 
@@ -529,7 +547,7 @@ if (Meteor.isClient) {
     resetDialog = function (){
       $("#crete_task_form")[0].reset();
       $("#cm_dialog_region_dropdown_btn").val("null");
-      $("#cm_dialog_region_dropdown_btn").text("Create New Region.");
+      $("#cm_dialog_region_dropdown_btn").text("Select Region First!");
       allFields.removeClass( "ui-state-error" );
     }
 
@@ -678,19 +696,21 @@ if (Meteor.isClient) {
           alert(error);
         }
         else{
-          $(".existing_region").removeClass("blurred");
+
+          $(".blurred").css("background", "");
+          $(".blurred").css("border", "");
+
 
           Session.set("LOCK", false);
           Session.set("MY_LOCKED_REGION", null);
-          ace_editor.setReadOnly(true);
+          Session.set("MY_LOCKED_TASK", null);
 
+          ace_editor.setReadOnly(true);
+          $(".existing_region").removeClass("blurred");
 
         }
       });
-
     }
-
-
   });
 
   Template.cm_task_view.events({
@@ -777,29 +797,41 @@ if (Meteor.isClient) {
       return _state.toUpperCase().replace("_", " ");;
     }
   });
-  Template.cm_runtime.events({
+  Template.cm_header.events({
     "click #run_editor_code": function (event) {
       runPythonCode(true);
-    }
+    },
+    "mouseover #run_editor_code": function (event) {
+      alertMessage("Pressing this button will run the selected code in the editor. \n It runs the entire code if there's no selection.","info");
+     }
   });
 
   Template.cm_runtime.onRendered(function(){
-
     $("#run_time_input").keyup(function(){
       if (event.which == 13) {
           runPythonCode();
           $("#run_time_input").val("");
+          $("#run_time_output").animate({
+scrollTop: $("#run_time_output").get(0).scrollHeight}, 2000);
+;
+
       }
     })
+
+    Sk.read = function(){
+      return "if this is going to work";
+    }
+    //Sk.buildinFiles["files"]["data.txt"] = "how do you do?";
       outf = function (text) {
         var output = $("#run_time_output");
         output.append(text)
       };
       builtinRead = function (x) {
           if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-            throw "File not found: '" + x + "'";
+                  throw "File not found: '" + x + "'";
           return Sk.builtinFiles["files"][x];
       };
+
       runPythonCode = function(editor) {
         var prog = $("#run_time_input").val();
 
@@ -864,7 +896,7 @@ if (Meteor.isClient) {
   Template.cm_header.onRendered(function(){
     $( "#mask_slider" ).slider({
       min: 0,
-      max: 90,
+      max: 95,
       value:50,
       range: "min",
       animate: "fast",
@@ -883,14 +915,13 @@ if (Meteor.isClient) {
     //  if(myMsg) clearTimeout(myMsg);
       $("#alert-msg").addClass("alert-" + type);
       $("#alert-msg").text(string);
-      $("#alert-msg").fadeIn( 300 ).delay( 1500 ).fadeOut( 400 );
+      $("#alert-msg").fadeIn( 300 ).delay( 2500 ).fadeOut( 400 );
 
     }
 
 
 
     window.onbeforeunload = function(){
-
       if ( Session.get("TASK_ID_IN_CREATION") != null ){
         if (Session.get("EDIT_MODE") == false)
           Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
@@ -904,7 +935,6 @@ if (Meteor.isClient) {
         Session.set("MY_LOCKED_TASK", null);
         Session.set("LOCK", false);
       }
-
     };
 
   })
@@ -912,7 +942,7 @@ if (Meteor.isClient) {
 
 
   Meteor.startup(function(){
-    $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
+  /*  $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
       if(DEBUG)console.log(error);
       $.getScript('http://www.skulpt.org/static/skulpt-stdlib.js', function(error){
         if(DEBUG)console.log(error);
@@ -922,7 +952,7 @@ if (Meteor.isClient) {
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/chance/0.5.6/chance.min.js', function(){
     // script has loaded
       if(DEBUG) console.log("chance script imported");
-    });
+    });*/
   });
 
 }
