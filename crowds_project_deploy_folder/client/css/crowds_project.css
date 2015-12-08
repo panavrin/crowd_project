@@ -8,7 +8,6 @@ html, body {
   padding:0px;
 }
 
-
 .blurred{
     background:rgba(255,255,255,0.5);
     border-radius: 0px!important;
@@ -26,6 +25,14 @@ html, body {
 	border:solid;
 	border-width: 1px;
 }*/
+
+
+#run_editor_code{
+  display:inline;
+  top:1px;
+  right:1px;
+  position:absolute;
+}
 
 #sandbox {
     background: #333;
@@ -164,6 +171,22 @@ fieldset .margin-top{
   border: 1px solid rgba(110,255,74,1.0);
 }
 
+.innertext_region{
+  pointer-events:auto;
+}
+
+.highlight_text{
+  color : white;
+}
+
+.highlighted_region {
+  box-shadow: 0px 0px 40px #ffaa00;
+}
+
+.highlighted_region2 {
+  box-shadow: 0px 0px 10px #000000;
+}
+
 #cm_code_editor{
   padding : 0px;
   overflow:hidden;
@@ -236,6 +259,19 @@ textarea{
 .half_fill{
     height:50%;
     min-height:50%;
+    bottom-margin:10%;
+}
+
+
+.fill_40{
+    height:40%;
+    min-height:40%;
+    bottom-margin:10%;
+}
+
+.fill_60{
+    height:60%;
+    min-height:60%;
     bottom-margin:10%;
 }
 
