@@ -24,7 +24,11 @@
 	</div>
 
 	<div id="create_task_dialg" title="Create New Task">
-		<h2 for="name"> Task 2</h2>
+		<h2 for="name">{{#if isInEdit}}
+			Edit Task
+			{{else}}
+			Create New Task
+	{{/if}}</h2>
 		<div class="validateTips"></div>
 		<form id="crete_task_form">
 			<fieldset>
@@ -35,7 +39,7 @@
 						<ul class="dropdown-menu">
 							<li><a href="#" value="new">Create New Region!</a></li>
 							{{#each allregions}}
-							  <li><a href="#" value = {{_id}}>Region {{name}}</a></li>
+							  <li><a href="#" value = "{{_id}}">Region {{name}}</a></li>
 							{{/each}}
 						</ul>
 					</div>
@@ -57,7 +61,7 @@
 <template name="cm_region_task_list">
 
 	<h2 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">
-			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span> Region {{name}}
+			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span><a href="#" region_start_line = {{start}} class="go_button"> Region {{name}}</a> 
 	</h2>
 	<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<div class="accordion_task ui-accordion ui-widget ui-helper-reset">
@@ -107,7 +111,7 @@
 					{{#if isWorkingNow}}
 						Well, you are busy with something else.
 					{{else}}
-						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start the Task</button>
+						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start (or Edit) the Task</button>
 					{{/if}}
 						<!--<button task_id = "{{_id}}" class = "task_lock_button btn btn-success">Vote for Delete</button>
 						<button task_id = "{{_id}}" class = "task_lock_button btn btn-success"></button>-->
@@ -118,7 +122,9 @@
 						 <p>
 			 				 You are currently working on this.
 			 			</p>
-							<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-default">Leave for now</button>
+						<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-default">Leave for now</button>
+						<button  task_id = "{{_id}}" class = "task_edit_button right_float btn btn-default">Edit</button>
+						<button  task_id = "{{_id}}" class = "task_delete_button right_float btn btn-default ">Delete</button>
 						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
 							{{else}}
 							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is working on this...</button>

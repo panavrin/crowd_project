@@ -7,10 +7,13 @@
       {{> cm_region}}
     {{/each}}
   </div>
+
+  <div id = "region_masker" class = "{{#if isWorkingNow}} {{#if notMine _id}} blurred {{/if}}{{/if}}" >
+  </div>
 </template>
 
 <template name="cm_region">
-  <div id ="{{_id}}" class = "region existing_region {{#if isWorkingNow}} {{#if notMine _id}} blurred {{/if}}{{/if}}" start = "{{start}}" end = "{{end}}">
+  <div id ="{{_id}}" class = "{{#if isWorkingNow}} {{#if notMine _id}} blurred {{/if}}{{/if}} region existing_region " start = "{{start}}" end = "{{end}}">
     Region {{name}} (created by {{username}})
   </div>
   <div class = "region new_region hidden" start = {{end}} end = {{end}}>

@@ -1,5 +1,16 @@
 
 <template name="cm_header">
-	{{> loginButtons}}
-	Hello this is the header
-</template>
+
+{{#if currentUser}} Logged in as {{/if}} {{> loginButtons}}
+		&nbsp;&nbsp;&nbsp; {{#if isWorkingNow}} Mask Opacity : {{/if}}  <div id="mask_slider" style="width:260px;display:inline-block;{{#if isWorkingNow}}
+		{{else}}
+		display:none;
+		{{/if}}"
+		></div	>
+	</template>
+<!--
+
+{{#if isWorkingNow}}
+{{else}}
+display:none;
+{{/if}}-->

@@ -5,15 +5,11 @@ editor_rendered = false;
 Session.set("TASK_ID_IN_CREATION",null);
 Session.set("MY_LOCKED_REGION", null);
 Session.set("LOCK", false);
-"oZkoQypSJJjM7PBGL"
+Session.set("EDIT_MODE",false);
 task_view_flag = null;
 admin_mode = null;
 
 var Range = require('ace/range').Range;
-
-
-
-
 
 
 //version = Meteor.collection("version_number")
@@ -43,9 +39,12 @@ if (Meteor.isClient) {
       return Tasks.find({});
   });
 
-  Template.registerHelper("allregions", function(){
-      return Regions.find({},{sort: {start: 1}});
+
+  Template.registerHelper("allregions", function(visible){
+    return Regions.find({},{sort: {start: 1}});
   });
+
+
 
 
   Template.cm_task_view.onRendered(function () {
@@ -113,24 +112,42 @@ if (Meteor.isClient) {
         if ( task_view_flag){
           updateRegions = function(){
             var gutterStart = $("#editor .ace_gutter :first-child");
+            var gutterEnd = $("#editor .ace_gutter :last-child");
             var firstLine = gutterStart.children().first();
             var numFirstLine = parseInt(firstLine.text())-1;
+            var numLastLine = parseInt(gutterEnd.text());
             var margin_top = gutterStart.css("margin-top");
             lineHeight = firstLine.css("height");
             lineHeight = parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
-
             margin_top = parseInt(margin_top.substring(0,margin_top.indexOf("px")));
+            var bottomPixel = parseInt(numLastLine - numFirstLine) * lineHeight + margin_top;
+
             if(DEBUG)console.log("changeScrollTop, numFirstLine:" + numFirstLine + " margin_top:" + margin_top)
             maxLineNumber = -1;
+            endLinePixel = -1;
+            var top, height;
+
             $(".region").each(function(){
+
               if(DEBUG)console.log("region");
               var start = parseInt($(this).attr("start")),
               end = parseInt($(this).attr("end"));
-              $(this).css("top", (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top) + "px");
-              $(this).css("height", (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) ))) + "px");
-              if (maxLineNumber < end)
+              top = (lineHeight * ( parseInt($(this).attr("start") - numFirstLine) ) + margin_top);
+              height = (lineHeight * ( parseInt($(this).attr("end") - parseInt($(this).attr("start")) )));
+              //if (top + height/* end line */ <0  || top /* startline */ > bottomPixel)
+              //  return;
+              $(this).css("top", top + "px");
+              $(this).css("height",height + "px");
+              if (maxLineNumber < end){
                 maxLineNumber = end;
+                endLinePixel = top + height;
+              }
             });
+            if ( endLinePixel < bottomPixel){
+              $("#region_masker").css("top", endLinePixel + "px");
+              $("#region_masker").css("bottom", bottomPixel);
+            }
+
           }
 
           ace.renderer.on("afterRender", function(e) {
@@ -219,7 +236,7 @@ if (Meteor.isClient) {
                 if(error){
                   if(DEBUG) console.error(error);
                 }
-                updateRegions();
+                setTimeout(updateRegions, 200);
 
               })
               // time to update regions
@@ -245,6 +262,13 @@ if (Meteor.isClient) {
 
   });
 
+  Template.cm_region_task_list.events({
+    "click .go_button": function(event){
+      var start = parseInt($(event.target).attr("region_start_line"));
+      ace_editor.scrollToLine(start, true, true);
+      event.stopPropagation();
+    }
+  });
 
   Template.cm_region_task_list.onRendered(function(){
   //  $('.accordion_region').accordion("refresh");
@@ -312,8 +336,12 @@ if (Meteor.isClient) {
     {
       alert("task ID should have been received.");
     }
+    var state = "in_creation";
+    if (Session.get("EDIT_MODE")){
+      state = "in_progress";
+    }
 
-    Meteor.call('updateTask', task_in_creation_id, title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(),"in_creation",  function (error, result) {
+    Meteor.call('updateTask', task_in_creation_id, title_store, desc_store, deliverable_store, $("#cm_dialog_region_dropdown_btn").val(),state,  function (error, result) {
       if (error) {
         if(DEBUG)console.log(error);
       } else {
@@ -480,8 +508,12 @@ if (Meteor.isClient) {
         var title_store = $("#cm_dialog_title").val();
         desc_store = $("#cm_dialog_desc").val();
         deliverable_store = $("#cm_dialog_delverbale").val();
+        var state = "task_open"
+        if (Session.get("EDIT_MODE")){
+          state = "in_progress";
+        }
 
-        Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), "task_open",  function (error, result) {
+        Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), state,  function (error, result) {
           if (error) {
             if(DEBUG)console.log(error);
           } else {
@@ -494,7 +526,7 @@ if (Meteor.isClient) {
       return false;
     }
 
-    function resetDialog(){
+    resetDialog = function (){
       $("#crete_task_form")[0].reset();
       $("#cm_dialog_region_dropdown_btn").val("null");
       $("#cm_dialog_region_dropdown_btn").text("Create New Region.");
@@ -508,7 +540,7 @@ if (Meteor.isClient) {
       modal: true,
       position: {of: "#cm_right_pane"},
       buttons: {
-        "Create a Task": function(){
+        "Submit": function(){
           if(addTask()){
             if(DEBUG) console.log("a task should be created")
             dialog.dialog("close");
@@ -519,9 +551,12 @@ if (Meteor.isClient) {
         Cancel: function() {
           dialog.dialog( "close" );
           resetDialog();
+
           // remove task
-          Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
-          Session.set("TASK_ID_IN_CREATION",null)
+          if (!Session.get("EDIT_MODE")) // delete the task only if I'm not editing.
+            Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
+          Session.set("TASK_ID_IN_CREATION",null);
+          Session.set("EDIT_MODE",false);
         }
       },
       close: function() {
@@ -533,7 +568,7 @@ if (Meteor.isClient) {
   Template.cm_task.events({
     "click .task_lock_button": function(event){
       if(Session.get("LOCK")){
-        alert("I know you are super-geneious but you can do one task at a time, for the sake of other code-monkeys.")
+        alertMessage("I know you are super-geneious but you can do one task at a time, for the sake of other code-monkeys.")
         return;
       }
       var task_id = $(event.target).attr("task_id");
@@ -556,10 +591,59 @@ if (Meteor.isClient) {
           $("#" + locked_region).removeClass("blurred");
 
           ace_editor.setReadOnly(false);
+          $slider = $('#mask_slider')
+          setTimeout(function(){
+            $slider.slider('option', 'slide').call($slider);
+          },10);
         }
       });
     },
+    "click .task_delete_button": function(event){
+      var task_id = $(event.target).attr("task_id");
+      if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
+        alert("task id is null for this button something is wrong. ")
+        return;
+      }
+      if ( confirm('Are you sure you want to delete this task?') ){
+        dialog.dialog( "close" );
+        resetDialog();
+        Session.set("TASK_ID_IN_CREATION",null);
+        Session.set("EDIT_MODE",false);
+      }
 
+    },
+    "click .task_edit_button" : function(event){
+      var task_id = $(event.target).attr("task_id");
+      if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
+        alert("task id is null for this button something is wrong. ")
+        return;
+      }
+
+    if (Session.get("TASK_ID_IN_CREATION") == null){
+      var task = Tasks.findOne(task_id);
+      if (task == null){
+        if (DEBUG) console.error("Cannot find the task : " + taskId);
+        return;
+      }
+      if(task.state!="in_progress"){
+        if (DEBUG) console.error("You cannot edit the task. It is not in progress state.");
+        return;
+      }
+
+      $("#cm_dialog_title").val(task.title);
+      $("#cm_dialog_desc").val(task.desc);
+      $("#cm_dialog_delverbale").val(task.deliverable);
+      $("#cm_dialog_region_dropdown_btn").text("Region " + Regions.findOne(task.region).name)
+      $("#cm_dialog_region_dropdown_btn").attr("value",task.region)
+      dialog.dialog("open");
+      Session.set("TASK_ID_IN_CREATION",task_id);
+      Session.set("EDIT_MODE",true);
+
+    }
+    else{
+      if(DEBUG) alert("EDIT new task / Session.get(\"TASK_ID_IN_CREATION\") not null");
+    }
+    },
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
@@ -571,12 +655,13 @@ if (Meteor.isClient) {
           alert(error);
         }
         else{
+          $(".blurred").css("background", "");
+          $(".blurred").css("border", "");
           Session.set("LOCK", false);
           Session.set("MY_LOCKED_REGION", null);
           Session.set("MY_LOCKED_TASK", null);
           ace_editor.setReadOnly(true);
           $(".existing_region").removeClass("blurred");
-
         }
       });
 
@@ -627,7 +712,7 @@ if (Meteor.isClient) {
     "click #btn_creat_task": function (event) {
 
       if (Meteor.user()== null){
-        alert("Sign up please!")
+        alertMessage("Sign up please!", "danger")
         return;
       }
       else{
@@ -738,27 +823,18 @@ if (Meteor.isClient) {
            },function(err) {
              outf("\n" + err.toString());
          }).done();
-         /*Sk.externalLibraries = {
-            numpy : {
-                path: 'http://example.com/static/primeronoo/skulpt/external/numpy/__init__.js',
-                dependencies: ['/static/primeronoo/skulpt/extaskViewModeternal/deps/math.js'],
-            },
-            matplotlib : {
-                path: '/static/primeronoo/skulpt/external/matplotlib/__init__.js'
-            },
-            "matplotlib.pyplot" : {
-                path: '/static/primeronoo/skulpt/external/matplotlib/pyplot/__init__.js',
-                dependencies: ['/static/primeronoo/skulpt/external/deps/d3.min.js'],
-            },
-            "arduino": {
-                path: '/static/primeronoo/skulpt/external/arduino/__init__.js'
-            }
-        };*/
+
         }
   //    });
   //  });
 
   })
+
+  Template.cm_task_view.helpers({
+    isInEdit: function(){
+      return Session.get("EDIT_MODE");
+    }
+  });
 
   Template.body.helpers({
     taskViewMode : function(){
@@ -785,12 +861,41 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.cm_header.onRendered(function(){
+    $( "#mask_slider" ).slider({
+      min: 0,
+      max: 90,
+      value:50,
+      range: "min",
+      animate: "fast",
+      slide: function( event, ui ) {
+        var value = parseFloat($( "#mask_slider" ).slider( "option", "value" ))/100.0;
+        $(".blurred").css("background", "rgba(255,255,255," + (value)+")");
+        $(".blurred").css("border", "solid 1px rgba(255,255,255," + (1 - value) + ")");
+      }
+    });
+  })
+
   Template.body.onRendered(function(){
+
+
+    alertMessage = function(string, type){
+    //  if(myMsg) clearTimeout(myMsg);
+      $("#alert-msg").addClass("alert-" + type);
+      $("#alert-msg").text(string);
+      $("#alert-msg").fadeIn( 300 ).delay( 1500 ).fadeOut( 400 );
+
+    }
+
+
+
     window.onbeforeunload = function(){
 
       if ( Session.get("TASK_ID_IN_CREATION") != null ){
-        Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
+        if (Session.get("EDIT_MODE") == false)
+          Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
         Session.set("TASK_ID_IN_CREATION",null);
+        Session.set("EDIT_MODE",false);
       }
 
       if (Session.get("LOCK") == true){
