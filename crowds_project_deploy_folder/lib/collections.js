@@ -18,7 +18,7 @@ Meteor.methods({
     //The options are: lock, unlock, cancel
     console.log(" ok ");
     console.log(_title);
-
+    console.log(_desc);
 
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");

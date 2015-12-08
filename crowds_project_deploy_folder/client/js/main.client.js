@@ -544,11 +544,13 @@ if (Meteor.isClient) {
 
         if (Session.get("EDIT_MODE")){
           console.log(" hahf ");
-          console.log(taskID+" "+title_store+ " "+desc_store+" "+deliverable_store+" "+region);
+          // console.log(taskID+" "+title_store+ " "+desc_store+" "+deliverable_store+" "+region);
           debugger;
           Meteor.call('logTask', taskID, $("#cm_dialog_title").val(), $("#cm_dialog_desc").val(), $("#cm_dialog_delverbale").val(),$("#cm_dialog_region_dropdown_btn").val(),"Edits");
           // Meteor.call("logTask",  "", "", "", "", "", "Start (or Edit) the task");
 
+        }else{
+          Meteor.call("logTask",  "", "", "", "", "", "Create a new task");
         }
 
         return true;
@@ -583,8 +585,11 @@ if (Meteor.isClient) {
           resetDialog();
 
           // remove task
-          if (!Session.get("EDIT_MODE")) // delete the task only if I'm not editing.
+          if (!Session.get("EDIT_MODE")){ // delete the task only if I'm not editing.
             Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
+            Meteor.call("logTask",  "", "", "", "", "", "Cancel the new task creation");
+
+          }
           Session.set("TASK_ID_IN_CREATION",null);
           Session.set("EDIT_MODE",false);
         }
@@ -765,6 +770,7 @@ if (Meteor.isClient) {
       }
 
       if (Session.get("TASK_ID_IN_CREATION") == null){
+
         Meteor.call('addTask', "", "", "", "", function (error, result) {
           if (error) {
             console.log(error);
