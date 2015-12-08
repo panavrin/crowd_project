@@ -576,6 +576,11 @@ if (Meteor.isClient) {
         alert("task id is null for this button something is wrong. ")
         return;
       }
+      title = $("#cm_dialog_title").val();
+      desc = $("#cm_dialog_desc").val();
+      deliverable = $("#cm_dialog_delverbale").val();
+      region = $("#cm_dialog_region_dropdown_btn").val()
+      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Start (or Edit) the task");
       Meteor.call("lockTask", task_id, Meteor.user().username, function(error, locked_region){
         if (error){
           alert(error);
@@ -600,11 +605,13 @@ if (Meteor.isClient) {
     },
     "click .task_delete_button": function(event){
       var task_id = $(event.target).attr("task_id");
+
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
       }
       if ( confirm('Are you sure you want to delete this task?') ){
+        Meteor.call("logTask", task_id, title, desc, deliverable, region, "Delete");
         dialog.dialog( "close" );
         resetDialog();
         Session.set("TASK_ID_IN_CREATION",null);
@@ -614,6 +621,8 @@ if (Meteor.isClient) {
     },
     "click .task_edit_button" : function(event){
       var task_id = $(event.target).attr("task_id");
+
+      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Edit");
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -646,6 +655,7 @@ if (Meteor.isClient) {
     },
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
+      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Leave for now (unlock)");
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -669,6 +679,7 @@ if (Meteor.isClient) {
 
     "click .task_complete_button": function(event){
       var task_id = $(event.target).attr("task_id");
+      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Complete");
       if (task_id == null){
         alert("task id is null for this button something is wrong. ")
         return;

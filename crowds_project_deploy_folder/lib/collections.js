@@ -2,7 +2,7 @@ Tasks = new Meteor.Collection("tasks");
 Regions = new Meteor.Collection("regions");
 Messages = new Meteor.Collection("messages");
 Rooms = new Meteor.Collection("rooms");
-
+Tasklogs = new Meteor.Collection("logs")
 
 
 
@@ -13,15 +13,19 @@ Meteor.methods({
     return (Tasks.remove({}) & (Messages.remove({})) & (Regions.remove({})));
   },
 
-  logTask: function(taskID, buttonClick ){
+  logTask: function(taskID,_title, _desc, _deliverable, _region_id, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
-    var now = new Data();
-    return Tasks.insert({
+    var now = new Date();
+    return Tasklogs.insert({
       taskID: taskID,
+      title: _title,
+      desc:_desc,
+      deliverable:_deliverable,
+      region: _region_id,
       state: buttonClick,
       operator: Meteor.userId(),
       username: Meteor.user().username,
