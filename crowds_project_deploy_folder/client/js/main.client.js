@@ -524,8 +524,8 @@ if (Meteor.isClient) {
       if (valid){
         // add task
         var title_store = $("#cm_dialog_title").val();
-        desc_store = $("#cm_dialog_desc").val();
-        deliverable_store = $("#cm_dialog_delverbale").val();
+        var desc_store = $("#cm_dialog_desc").val();
+        var deliverable_store = $("#cm_dialog_delverbale").val();
         var state = "task_open"
         if (Session.get("EDIT_MODE")){
           state = "in_progress";
@@ -538,6 +538,18 @@ if (Meteor.isClient) {
             if(DEBUG)console.log(result);
           }
         });
+        taskID = Session.get("TASK_ID_IN_CREATION");
+        region = $("#cm_dialog_region_dropdown_btn").val()
+        // console.log(typeof(taskID)+" "+title_store+ " "+desc_store+" "+deliverable_store);
+
+        if (Session.get("EDIT_MODE")){
+          console.log(" hahf ");
+          console.log(taskID+" "+title_store+ " "+desc_store+" "+deliverable_store+" "+region);
+          debugger;
+          Meteor.call('logTask', taskID, $("#cm_dialog_title").val(), $("#cm_dialog_desc").val(), $("#cm_dialog_delverbale").val(),$("#cm_dialog_region_dropdown_btn").val(),"Edits");
+          // Meteor.call("logTask",  "", "", "", "", "", "Start (or Edit) the task");
+
+        }
 
         return true;
       }
@@ -598,7 +610,7 @@ if (Meteor.isClient) {
       desc = $("#cm_dialog_desc").val();
       deliverable = $("#cm_dialog_delverbale").val();
       region = $("#cm_dialog_region_dropdown_btn").val()
-      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Start (or Edit) the task");
+      Meteor.call("logTask",  "", "", "", "", "", "Start (or Edit) the task");
       Meteor.call("lockTask", task_id, Meteor.user().username, function(error, locked_region){
         if (error){
           alert(error);
@@ -629,7 +641,8 @@ if (Meteor.isClient) {
         return;
       }
       if ( confirm('Are you sure you want to delete this task?') ){
-        Meteor.call("logTask", task_id, title, desc, deliverable, region, "Delete");
+        Meteor.call("logTask",  "", "", "", "", "","Delete");
+
         dialog.dialog( "close" );
         resetDialog();
         Session.set("TASK_ID_IN_CREATION",null);
@@ -640,7 +653,7 @@ if (Meteor.isClient) {
     "click .task_edit_button" : function(event){
       var task_id = $(event.target).attr("task_id");
 
-      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Edit");
+      Meteor.call("logTask", "", "", "", "", "", "Edit");
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -673,7 +686,7 @@ if (Meteor.isClient) {
     },
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Leave for now (unlock)");
+      Meteor.call("logTask",  "", "", "", "", "", "Leave for now (unlock)");
       if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -697,7 +710,7 @@ if (Meteor.isClient) {
 
     "click .task_complete_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      Meteor.call("logTask", task_id, title, desc, deliverable, region, "Complete");
+      Meteor.call("logTask",  "", "", "", "", "", "Complete");
       if (task_id == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -934,8 +947,9 @@ scrollTop: $("#run_time_output").get(0).scrollHeight}, 2000);
 
     window.onbeforeunload = function(){
       if ( Session.get("TASK_ID_IN_CREATION") != null ){
-        if (Session.get("EDIT_MODE") == false)
+        if (Session.get("EDIT_MODE") == false){
           Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
+        }
         Session.set("TASK_ID_IN_CREATION",null);
         Session.set("EDIT_MODE",false);
       }

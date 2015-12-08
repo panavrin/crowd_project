@@ -13,6 +13,8 @@ if (Meteor.isServer) {
 
   Meteor.methods({
 
+    
+
     lockTask: function(taskId, username){
       var task = Tasks.findOne(taskId);
       if (task == null){

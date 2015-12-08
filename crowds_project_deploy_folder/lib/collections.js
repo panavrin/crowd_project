@@ -16,9 +16,14 @@ Meteor.methods({
   logTask: function(taskID,_title, _desc, _deliverable, _region_id, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
+    console.log(" ok ");
+    console.log(_title);
+
+
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
+    debugger;
     var now = new Date();
     return Tasklogs.insert({
       taskID: taskID,
