@@ -108,7 +108,8 @@
 					{{#if isWorkingNow}}
 						Well, you are busy with something else.
 					{{else}}
-						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start (or Edit) the Task</button>
+						<button  task_id = "{{_id}}" class = "task_edit_button right_float btn btn-info">Edit</button>
+						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start</button>
 					{{/if}}
 						<!--<button task_id = "{{_id}}" class = "task_lock_button btn btn-success">Vote for Delete</button>
 						<button task_id = "{{_id}}" class = "task_lock_button btn btn-success"></button>-->
@@ -116,15 +117,22 @@
 						{{#if isTaskLocked state}}
 						 <!-- by owner or not-->
 						 {{#if isOwner lockedby}}
+						 	{{#if isInEdit}}
 						 <p>
-			 				 You are currently working on this.
+			 				 You are currently editing this task.
 			 			</p>
-						<button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-default">Leave for now</button>
-						<button  task_id = "{{_id}}" class = "task_edit_button right_float btn btn-default">Edit</button>
-						<button  task_id = "{{_id}}" class = "task_delete_button right_float btn btn-default ">Delete</button>
+						{{else}}
+						<p>
+							You are currently working on this. {{isInEdit}}
+					 </p>
+						  <button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">Leave</button>
+						  <button  task_id = "{{_id}}" class = "task_delete_button right_float btn btn-danger ">Delete</button>
 						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
+							{{/if}}
 							{{else}}
-							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is working on this...</button>
+							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is
+								working on 
+								{{/if}} this...</button>
 							{{/if}}
 						{{/if}}
 				{{/if}}

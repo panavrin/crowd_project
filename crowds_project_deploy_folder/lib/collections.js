@@ -23,7 +23,7 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
-    debugger;
+//    debugger;
     var now = new Date();
     return Tasklogs.insert({
       taskID: taskID,

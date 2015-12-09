@@ -44,9 +44,9 @@ if (Meteor.isClient) {
     return Regions.find({},{sort: {start: 1}});
   });
 
-
-
-
+  Template.registerHelper("isInEdit", function(){
+    return Session.get("EDIT_MODE");
+  });
   Template.cm_task_view.onRendered(function () {
 
     // if (Meteor.user().username = "admin")
@@ -162,6 +162,8 @@ if (Meteor.isClient) {
           ace_editor.getSession().selection.on('changeSelection', function(e) {
             if (!Session.get("LOCK"))
               return;
+            if (Session.get("EDIT_MODE"))
+                return;
             var region_id = Session.get("MY_LOCKED_REGION");
             var start_region_line = parseInt($("#"+region_id).attr("start")),
               end_region_line = parseInt($("#"+region_id).attr("end"));
@@ -179,6 +181,8 @@ if (Meteor.isClient) {
           // idea is to make it readonly when selection is outside my locked region
           ace_editor.getSession().selection.on('changeCursor', function(e) {
             if (!Session.get("LOCK"))
+              return;
+            if (Session.get("EDIT_MODE"))
               return;
             var region_id = Session.get("MY_LOCKED_REGION");
             var start_region_line = parseInt($("#"+region_id).attr("start")),
@@ -254,7 +258,7 @@ if (Meteor.isClient) {
         }
 
         if (ace_editor.getValue().length==0)
-          ace_editor.setValue("from document import *\ninput = getElementById('python_data').value\nprint input",-1)
+          ace_editor.setValue("from document import *\ninput = getElementById('python_data').value\n#The input varaible will contain the text available in the textarea",-1)
         if(DEBUG)console.log("setMode");
       }
     },
@@ -341,7 +345,7 @@ if (Meteor.isClient) {
   })
 
   function updateTask(state){
-    var task_in_creation_id = Session.get("TASK_ID_IN_CREATION") ;
+    var task_in_creation_id = Session.get("TASK_ID_IN_CREATION");
     if (task_in_creation_id== null){
       if (DEBUG) alert("task ID null, it should not happen. ");
       return;
@@ -372,9 +376,11 @@ if (Meteor.isClient) {
     if(DEBUG) console.log("dropdown menu clicked:" + $(this).text());
 
     if($(this).attr("value") == "new"){
+      Session.set("REGION_SELECTION", true);
       $(".new_region").removeClass("hidden");
-      dialog.dialog( "close" );
       $(this).next('ul').toggle();
+      dialog.dialog( "close" );
+      alertMessage("Choose where you will create a new region by pressing one of the buttons.", "info");
     }
     else{
       $("#cm_dialog_region_dropdown_btn").text($(this).text());
@@ -423,6 +429,7 @@ if (Meteor.isClient) {
         // insert region and open the dialog again.
         dialog.dialog('option', 'position',{of: "#cm_code_editor"});
         dialog.dialog( "open" );
+        Session.set("REGION_SELECTION", false);
         $("#cm_dialog_region_dropdown_btn").text("Region " + region_name);
       }
 
@@ -520,42 +527,41 @@ if (Meteor.isClient) {
       valid = valid && checkRegion($("#cm_dialog_region_dropdown_btn"));
       valid = valid && checkLength(title, "Title", 0, 140);
       valid = valid && checkLength(desc, "Description", 0, 500);
+      if( valid == false)
+        return false;
+      // add task
+      var title_store = $("#cm_dialog_title").val();
+      var desc_store = $("#cm_dialog_desc").val();
+      var deliverable_store = $("#cm_dialog_delverbale").val();
+      var region_id = $("#cm_dialog_region_dropdown_btn").val();
+      var state = "task_open"
 
-      if (valid){
-        // add task
-        var title_store = $("#cm_dialog_title").val();
-        var desc_store = $("#cm_dialog_desc").val();
-        var deliverable_store = $("#cm_dialog_delverbale").val();
-        var state = "task_open"
-        if (Session.get("EDIT_MODE")){
-          state = "in_progress";
-        }
-
-        Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,$("#cm_dialog_region_dropdown_btn").val(), state,  function (error, result) {
-          if (error) {
-            if(DEBUG)console.log(error);
-          } else {
-            if(DEBUG)console.log(result);
-          }
-        });
-        taskID = Session.get("TASK_ID_IN_CREATION");
-        region = $("#cm_dialog_region_dropdown_btn").val()
-        // console.log(typeof(taskID)+" "+title_store+ " "+desc_store+" "+deliverable_store);
-
-        if (Session.get("EDIT_MODE")){
-          console.log(" hahf ");
-          // console.log(taskID+" "+title_store+ " "+desc_store+" "+deliverable_store+" "+region);
-          debugger;
-          Meteor.call('logTask', taskID, $("#cm_dialog_title").val(), $("#cm_dialog_desc").val(), $("#cm_dialog_delverbale").val(),$("#cm_dialog_region_dropdown_btn").val(),"Edits");
-          // Meteor.call("logTask",  "", "", "", "", "", "Start (or Edit) the task");
-
-        }else{
-          Meteor.call("logTask",  "", "", "", "", "", "Create a new task");
-        }
-
-        return true;
+      if (Session.get("EDIT_MODE")){
+        Session.set("LOCK", false);
+        Session.set("MY_LOCKED_TASK", null);
       }
-      return false;
+
+      Meteor.call('updateTask', Session.get("TASK_ID_IN_CREATION"), title_store, desc_store, deliverable_store,region_id, state,  function (error, result) {
+        if (error) {
+          if(DEBUG)alert(error);
+        } else {
+          if(DEBUG)console.log(result);
+        }
+      });
+      taskID = Session.get("TASK_ID_IN_CREATION");
+      // console.log(typeof(taskID)+" "+title_store+ " "+desc_store+" "+deliverable_store);
+
+      if (Session.get("EDIT_MODE")){
+        if(DEBUG) console.log(" hahf ");
+    //    debugger;
+        Meteor.call('logTask', taskID, title_store, desc_store,deliverable_store ,region_id,"edit_complete");
+
+      }else{
+        Meteor.call("logTask",  taskID, title_store, desc_store,deliverable_store ,region_id, "create_complete");
+      }
+
+      return true;
+
     }
 
     resetDialog = function (){
@@ -581,21 +587,32 @@ if (Meteor.isClient) {
           }
         },
         Cancel: function() {
-          dialog.dialog( "close" );
-          resetDialog();
 
           // remove task
-          if (!Session.get("EDIT_MODE")){ // delete the task only if I'm not editing.
+          if (Session.get("EDIT_MODE")){
+            Session.set("LOCK", false);
+            Session.set("MY_LOCKED_TASK", null);
+            Meteor.call('unlockTask',Session.get("TASK_ID_IN_CREATION"), Meteor.user().username, function(error, result){
+              if(error){
+                if(DEBUG) alert(error)
+                else console.error(error);
+              }
+            });
+          }
+          else{
             Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
             Meteor.call("logTask",  "", "", "", "", "", "Cancel the new task creation");
-
           }
-          Session.set("TASK_ID_IN_CREATION",null);
-          Session.set("EDIT_MODE",false);
+          dialog.dialog( "close" );
+          resetDialog();
         }
       },
       close: function() {
         if (DEBUG) console.log("dialog closed");
+        if (!Session.get("REGION_SELECTION")){
+          Session.set("TASK_ID_IN_CREATION",null);
+          Session.set("EDIT_MODE",false);
+        }
       }
     });
   });
@@ -657,37 +674,48 @@ if (Meteor.isClient) {
     },
     "click .task_edit_button" : function(event){
       var task_id = $(event.target).attr("task_id");
+      Meteor.call("lockTask", task_id, Meteor.user().username, function(error, locked_region){
+        if (error){
+          alert(error);
+        }
+        else{
 
-      Meteor.call("logTask", "", "", "", "", "", "Edit");
-      if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
-        alert("task id is null for this button something is wrong. ")
-        return;
-      }
+          Session.set("LOCK", true);
+          Session.set("MY_LOCKED_TASK", task_id);
 
-    if (Session.get("TASK_ID_IN_CREATION") == null){
-      var task = Tasks.findOne(task_id);
-      if (task == null){
-        if (DEBUG) console.error("Cannot find the task : " + taskId);
-        return;
-      }
-      if(task.state!="in_progress"){
-        if (DEBUG) console.error("You cannot edit the task. It is not in progress state.");
-        return;
-      }
+          Meteor.call("logTask", "", "", "", "", "", "Edit");
+          if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
+            alert("task id is null for this button something is wrong. ")
+            return;
+          }
 
-      $("#cm_dialog_title").val(task.title);
-      $("#cm_dialog_desc").val(task.desc);
-      $("#cm_dialog_delverbale").val(task.deliverable);
-      $("#cm_dialog_region_dropdown_btn").text("Region " + Regions.findOne(task.region).name)
-      $("#cm_dialog_region_dropdown_btn").attr("value",task.region)
-      dialog.dialog("open");
-      Session.set("TASK_ID_IN_CREATION",task_id);
-      Session.set("EDIT_MODE",true);
+          if (Session.get("TASK_ID_IN_CREATION") == null){
+            var task = Tasks.findOne(task_id);
+            if (task == null){
+              if (DEBUG) console.error("Cannot find the task : " + taskId);
+              return;
+            }
+            if(task.state!="in_progress"){
+              if (DEBUG) console.error("You cannot edit the task. It is not in progress state.");
+              return;
+            }
 
-    }
-    else{
-      if(DEBUG) alert("EDIT new task / Session.get(\"TASK_ID_IN_CREATION\") not null");
-    }
+            $("#cm_dialog_title").val(task.title);
+            $("#cm_dialog_desc").val(task.desc);
+            $("#cm_dialog_delverbale").val(task.deliverable);
+            $("#cm_dialog_region_dropdown_btn").text("Region " + Regions.findOne(task.region).name)
+            $("#cm_dialog_region_dropdown_btn").attr("value",task.region)
+            dialog.dialog("open");
+            Session.set("TASK_ID_IN_CREATION",task_id);
+            Session.set("EDIT_MODE",true);
+
+          }
+          else{
+            if(DEBUG) alert("EDIT new task / Session.get(\"TASK_ID_IN_CREATION\") not null");
+          }
+        }
+      });
+
     },
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
@@ -764,16 +792,22 @@ if (Meteor.isClient) {
         alertMessage("Sign up please!", "danger")
         return;
       }
+      else if (Session.get("LOCK")){
+        alertMessage("You cannot create a new task while doing another task. Press \"Leave for now\" and create new task. ", "danger");
+        return;
+      }
       else{
         if(DEBUG) console.log("Create new task button clicked");
-        dialog.dialog( "open" );
       }
 
       if (Session.get("TASK_ID_IN_CREATION") == null){
+        dialog.dialog( "open" );
 
         Meteor.call('addTask', "", "", "", "", function (error, result) {
           if (error) {
-            console.log(error);
+            if(DEBUG) alert(error);
+            alertMessage("Could not issue a new task id. Try this again.");
+            dialog.dialog("close");
           } else {
             if(DEBUG)console.log("new task id is assigned:" + result);
             Session.set("TASK_ID_IN_CREATION",result);
@@ -781,7 +815,7 @@ if (Meteor.isClient) {
         });
       }
       else{
-        if(DEBUG) alert(" create new task / button not null");
+        if(DEBUG) alert(" create new task / button not null . Sang should figure out why. ");
       }
     }/*,
     "click .dropdown-menu li a" : function (event) {
@@ -892,11 +926,7 @@ scrollTop: $("#run_time_output").get(0).scrollHeight}, 2000);
 
   })
 
-  Template.cm_task_view.helpers({
-    isInEdit: function(){
-      return Session.get("EDIT_MODE");
-    }
-  });
+
 
   Template.body.helpers({
     taskViewMode : function(){
@@ -949,9 +979,7 @@ scrollTop: $("#run_time_output").get(0).scrollHeight}, 2000);
 
     }
 
-
-
-    window.onbeforeunload = function(){
+    initState = function(){
       if ( Session.get("TASK_ID_IN_CREATION") != null ){
         if (Session.get("EDIT_MODE") == false){
           Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
@@ -966,11 +994,11 @@ scrollTop: $("#run_time_output").get(0).scrollHeight}, 2000);
         Session.set("MY_LOCKED_TASK", null);
         Session.set("LOCK", false);
       }
+
     };
-
+    initState();
+    window.onbeforeunload = initState;
   })
-
-
 
   Meteor.startup(function(){
   /*  $.getScript('http://www.skulpt.org/static/skulpt.min.js', function(error){
