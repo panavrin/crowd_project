@@ -12,6 +12,18 @@ html, body {
     background:rgba(255,255,255,0.5);
     border-radius: 0px!important;
 }
+.archived_tasks_toggle{
+  text-align: right;
+  margin-top: 10px;
+}
+
+.archived_tasks{
+  display:none;
+}
+
+#python_data{
+  resize: none;
+}
 
 .wordwrap {
    white-space: pre-wrap;      /* CSS3 */
@@ -86,7 +98,7 @@ html, body {
     box-shadow: none;
 }
 
-label, input,textarea { display:block; }
+label, input, textarea { display:block; }
 input.text { margin-bottom:12px; width:95%; padding: .4em; }
 fieldset { padding:0; border:0; margin-top:25px; }
 .ui-dialog .ui-state-error { padding: .3em; }
@@ -108,6 +120,12 @@ fieldset .margin-top{
 }
 /* task state */
 .in_creation{
+  background: #800029!important;
+  color:white!important;
+}
+
+
+.in_edit{
   background: #800029!important;
   color:white!important;
 }
@@ -142,7 +160,11 @@ fieldset .margin-top{
   width:98%;
   border-radius:12px;
   text-align : right;
-  background:rgba(0,0,0,0.1);;
+  background:rgba(0,0,0,0.1);
+}
+
+.ui-dialog-titlebar-close {
+  visibility: hidden;
 }
 
 .new_region{
@@ -152,11 +174,14 @@ fieldset .margin-top{
 
 #alert-msg{
   position:absolute;
-  width:80%;
+  width:60%;
   top:0px;
-  left:15%;
+  left:20%;
   z-index:10;
   color:black;
+  font-size: 20px;
+  text-align: center;
+  border:solid 1px;
 }
 
 .region button{

@@ -43,8 +43,8 @@
 
 			  	<label for="name"> Title (0-30) </label>
 			  	<input type="text" name="name" id="cm_dialog_title" placeholder="Name it informative and short!!!!" class="text ui-widget-content ui-corner-all">
-			  	<label for="email">Description (0-500)</label>
-			  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="10"></textarea>
+			  	<label for="email">Description (optional)</label>
+			  	<textarea name="desc" id="cm_dialog_desc" placeholder="Write the descirption of the task. Make the task reasonably small so others can create a task too." class="text ui-widget-content ui-corner-all" rows="5ß"></textarea>
 			  	<label for="name"> Deliverable (optional)</label>
 			 	 <input type="text" name="name" id="cm_dialog_delverbale" placeholder="Please specify what will be available if complete." class="text ui-widget-content ui-corner-all">
 			  <!-- Allow form submission with keyboard without duplicating the dialog button -->
@@ -65,6 +65,15 @@
 			{{#each tasksinregion _id}}
 				{{> cm_task}}
 			{{/each}}
+{{#if archivedTasksExist _id}}
+				<div class = "archived_tasks_toggle" >Show Archived Tasks</div>
+
+				<div class = "archived_tasks">
+					{{#each archivedtasksinregion _id}}
+						{{> cm_task}}
+					{{/each}}
+				</div>
+{{/if}}
 		</div>
 	</div>
 </template>
@@ -81,7 +90,7 @@
 
 		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
 		{{state}}">
-			<div> Task - {{title}} </div>
+			<div> Task - {{title}}({{stringifyTaskState state}}  {{ #if isTaskLocked state}} by {{lockedby}} {{/if}})</div>
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>
@@ -100,41 +109,43 @@
 					<p>{{username}}</p>
 	    	{{/if}}
 			</p>
+
 			<p>
-				 Current State : {{stringifyTaskState state}} {{ #if isTaskLocked state}} by {{lockedby}} {{/if}}
-			</p>
-			<p>
-				{{#if isTaskOpen state}}
+{{#if isTaskOpen state}}
 					{{#if isWorkingNow}}
 						Well, you are busy with something else.
 					{{else}}
-						<button  task_id = "{{_id}}" class = "task_edit_button right_float btn btn-info">Edit</button>
-						<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Start</button>
+					<button task_id = "{{_id}}" class = "task_lock_button right_float btn btn-success ">Lock Task</button>
+						<button  task_id = "{{_id}}" class = "task_edit_button right_float btn btn-info">Edit task</button>
 					{{/if}}
 						<!--<button task_id = "{{_id}}" class = "task_lock_button btn btn-success">Vote for Delete</button>
 						<button task_id = "{{_id}}" class = "task_lock_button btn btn-success"></button>-->
-					{{else}}
-						{{#if isTaskLocked state}}
+{{/if}}
+{{#if isTaskLocked state}}
 						 <!-- by owner or not-->
-						 {{#if isOwner lockedby}}
+					 {{#if isOwner lockedby}}
 						 	{{#if isInEdit}}
 						 <p>
 			 				 You are currently editing this task.
 			 			</p>
-						{{else}}
+							{{else}}
 						<p>
 							You are currently working on this. {{isInEdit}}
 					 </p>
-						  <button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">Leave</button>
-						  <button  task_id = "{{_id}}" class = "task_delete_button right_float btn btn-danger ">Delete</button>
-						  <button  task_id = "{{_id}}" class = "task_complete_button right_float btn btn-primary">Complete</button>
+						  <button  task_id = "{{_id}}" class = "task_unlock_button right_float btn btn-success">UnLock</button>
+						  <!--<button  task_id = "{{_id}}" class = "task_delete_button right_float btn btn-danger ">Delete</button>-->
+						  <button  task_id = "{{_id}}" class = "task_archive_button right_float btn btn-primary">Archive</button>
 							{{/if}}
-							{{else}}
-							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is
-								working on this...</button>
-							{{/if}}
-						{{/if}}
-				{{/if}}
+					{{else}}
+							<button  class = "right_float btn btn-danger btn-info">{{lockedby}} is {{#if isInProgress state}}
+								working on {{else}} editing {{/if}}this...</button>
+					{{/if}}
+{{/if}}
+
+{{#if isArchived state}}
+						  <button  task_id = "{{_id}}" class = "task_unarchive_button right_float btn btn-primary">Unarchive</button>
+{{/if}}
+
 			</p>
 
 		</div>

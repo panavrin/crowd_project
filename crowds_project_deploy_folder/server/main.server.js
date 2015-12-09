@@ -13,15 +13,15 @@ if (Meteor.isServer) {
 
   Meteor.methods({
 
-    
 
-    lockTask: function(taskId, username){
+
+    lockTask: function(taskId, username, _state){
       var task = Tasks.findOne(taskId);
       if (task == null){
         throw new Meteor.Error("Cannot find the task : " + taskId);
       }
       if(task.state!="task_open"){
-        throw new Meteor.Error("You cannot start the task. It is not in open state.");
+        throw new Meteor.Error("You cannot start/edit the task. It is not in open state.");
       }
       if(DEBUG) console.log("LOCK:" + username + "," +taskId + ","+task.region);
       Regions.update({_id:task.region_id}, {$set:{
@@ -30,7 +30,7 @@ if (Meteor.isServer) {
       }});
 
       Tasks.update({_id:taskId},{$set:{
-          state: "in_progress",
+          state: _state,
           lockedby:username
         }
       });

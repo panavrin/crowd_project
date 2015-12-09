@@ -16,10 +16,6 @@ Meteor.methods({
   logTask: function(taskID,_title, _desc, _deliverable, _region_id, buttonClick ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
-    console.log(" ok ");
-    console.log(_title);
-    console.log(_desc);
-
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
@@ -65,8 +61,8 @@ Meteor.methods({
     if (task == null){
       throw new Meteor.Error("Cannot find the task : " + taskId);
     }
-    if(task.state!="in_progress"){
-      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+    if(task.state!="in_progress" && task.state!="in_edit"){
+      throw new Meteor.Error("You cannot unlock the task. It is not in the locked state. (state:" + task.state + ")");
     }
     return Tasks.update({_id:taskId},{$set:{
         state: "task_open",
@@ -74,18 +70,30 @@ Meteor.methods({
       }
     });
   },
-  completeTask: function(taskId, username){
+  archiveTask: function(taskId, username){
     var task = Tasks.findOne(taskId);
     if (task == null){
       throw new Meteor.Error("Cannot find the task : " + taskId);
     }
     if(task.state!="in_progress"){
-      throw new Meteor.Error("You cannot start the task. It is not in open state.");
+      throw new Meteor.Error("You cannot archive the task. ");
     }
     return Tasks.update({_id:taskId},{$set:{
-        state: "complete",
-        lockedby:null,
-        completedby:username
+        state: "archived",
+        lockedby:null
+      }
+    });
+  },
+  unarchiveTask :  function(taskId, username){
+    var task = Tasks.findOne(taskId);
+    if (task == null){
+      throw new Meteor.Error("Cannot find the task : " + taskId);
+    }
+    if(task.state!="archived"){
+      throw new Meteor.Error("You cannot unarchive the task. It is not in archived state.");
+    }
+    return Tasks.update({_id:taskId},{$set:{
+        state: "task_open"
       }
     });
   },
