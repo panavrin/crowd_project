@@ -6,14 +6,14 @@ Tasklogs = new Meteor.Collection("logs")
 
 
 
-DEBUG  = true;
+DEBUG  = false;
 Meteor.methods({
 
   removeAll: function(){
     return (Tasks.remove({}) & (Messages.remove({})) & (Regions.remove({})));
   },
 
-  logTask: function(taskID,_title, _desc, _deliverable, _region_id, buttonClick ){
+  logTask: function(taskID,_title, _desc, _deliverable, _region_id, _region_value, action_type ){
     //buttonClick is the store which button clicks.
     //The options are: lock, unlock, cancel
     if (! Meteor.userId()) {
@@ -27,7 +27,8 @@ Meteor.methods({
       desc:_desc,
       deliverable:_deliverable,
       region: _region_id,
-      state: buttonClick,
+      region_value: _region_value,
+      state: action_type,
       operator: Meteor.userId(),
       username: Meteor.user().username,
       updatedAt: now

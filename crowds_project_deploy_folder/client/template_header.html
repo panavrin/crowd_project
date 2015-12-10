@@ -1,7 +1,7 @@
 
 <template name="cm_header">
 
-{{#if currentUser}} Logged in as {{/if}} {{> loginButtons}}
+{{#if currentUser}} Logged in as {{else}} <strong style ="color:red;"> Sign in First! &nbsp;&nbsp;&nbsp;&nbsp; </strong>{{/if}} {{> loginButtons}}
 		&nbsp;&nbsp;&nbsp; {{#if isWorkingNow}} Mask Opacity : {{/if}}  <div id="mask_slider" style="width:260px;display:inline-block;{{#if isWorkingNow}}
 		{{else}}
 		display:none;

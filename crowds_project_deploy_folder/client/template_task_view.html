@@ -58,7 +58,7 @@
 <template name="cm_region_task_list">
 
 	<h2 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all" id = "region_acc_{{_id}}" region_id = {{_id}} >
-			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>Region {{name}} <a href="#" region_start_line = {{start}} class="go_button">[GO]</a>
+			<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>Region {{name}} <a href="#" region_start_line = {{start}} class="go_button">[go]</a>
 	</h2>
 	<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<div class="accordion_task ui-accordion ui-widget ui-helper-reset">
@@ -90,7 +90,7 @@
 
 		<h3 class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all
 		{{state}}">
-			<div> Task - {{title}}({{stringifyTaskState state}}  {{ #if isTaskLocked state}} by {{lockedby}} {{/if}})</div>
+			<div> Task - {{title}} ({{stringifyTaskState state}}  {{ #if isTaskLocked state}} by {{lockedby}} {{/if}})</div>
 		</h3>
 		<div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
 		<p>

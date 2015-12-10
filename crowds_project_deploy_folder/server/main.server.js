@@ -40,7 +40,7 @@ if (Meteor.isServer) {
     updateRegionLines : function(region_id, line){
       var region = Regions.findOne(region_id);
       if (region == undefined){
-        if(DEBUG) console.error("region id :" + region_id);
+        console.error("region id :" + region_id);
         throw new Meteor.Error("region undefined  " + region_id);
       }
       Regions.update({ start: {$gte: region.end}}, { $inc: { start: line, end: line} }, {multi: true}, function(error, num){

@@ -8,6 +8,8 @@ Session.set("LOCK", false);
 Session.set("EDIT_MODE",false);
 task_view_flag = null;
 admin_mode = null;
+var select_region_first = true;
+
 var tutorial_create_task_flag = true;
 var tutorial_select_region_flag = true;
 var tutorial_lock_task_flag = true;
@@ -258,14 +260,12 @@ if (Meteor.isClient) {
                 regionUpdated = true;
               Meteor.call("updateRegionLines", region_id, changedLine, function(error,result){
                 if(error){
-                  if(DEBUG) console.error(error);
+                  console.error(error);
                 }
                 setTimeout(updateRegions, 200);
 
               })
               // time to update regions
-
-
           });
 
         }
@@ -277,8 +277,28 @@ if (Meteor.isClient) {
           ace_editor.setReadOnly(true);
         }
 
-        if (ace_editor.getValue().length==0)
-          ace_editor.setValue("from document import *\ntextarea_input = getElementById('python_data').value\n#The textarea_input varaible will contain the text available in the textarea",-1)
+        if (ace_editor.getValue().length==0){
+          ace_editor.setValue("from document import *\ntextarea_input = getElementById('python_data').value\n#The textarea_input varaible will contain the text available in the textarea\n\n",-1)
+        }
+
+        ace_editor.commands.addCommand({
+          name: 'myCommand',
+          bindKey: {win: 'Ctrl-Z',  mac: 'Command-Z'},
+          exec: function(editor) {
+              alert("Sorry, undo/redo is disabled. ");
+          },
+          readOnly: true // false if this command should not apply in readOnly mode
+        });
+
+        ace_editor.commands.addCommand({
+          name: 'myCommand2',
+          bindKey: {win: 'Ctrl-Y',  mac: 'Command-Y, Command-Shift-Y'},
+          exec: function(editor) {
+              alert("Sorry, undo/redo is disabled. ");
+          },
+          readOnly: true // false if this command should not apply in readOnly mode
+        });
+
         if(DEBUG)console.log("setMode");
       }
     },
@@ -326,9 +346,26 @@ if (Meteor.isClient) {
     this.$(".archived_tasks_toggle").next().removeClass("toggled");
     this.$(".archived_tasks_toggle").next().slideUp();
 
-    this.$(".accordion-header").hover(function(event){
+    this.$(".accordion-header").mouseenter(function(event){
       var region_id = $(this).attr("region_id");
-      $("#" + region_id).toggleClass("highlighted_region");
+      $("#" + region_id).addClass("highlighted_region");
+    });
+
+    this.$(".ui-accordion-content").mouseenter(function(event){
+      var region_id = $(this).prev().attr("region_id");
+      $("#" + region_id).addClass("highlighted_region");
+    });
+
+    this.$(".accordion-header").mouseleave(function(event){
+      var region_id = $(this).attr("region_id");
+      $("#" + region_id).removeClass("highlighted_region");
+
+    });
+
+    this.$(".ui-accordion-content").mouseleave(function(event){
+      var region_id = $(this).prev().attr("region_id");
+      $("#" + region_id).removeClass("highlighted_region");
+
     });
 
     this.$(".go_button").click(function(event){
@@ -364,9 +401,9 @@ if (Meteor.isClient) {
   Template.cm_region.onRendered(function(){
     if (editor_rendered){
       updateRegions();
-      if (maxLineNumber < ace_editor.getSession().getLength() ){
+      if (maxLineNumber + 2< ace_editor.getSession().getLength() ){
       //  ace_editor.remove(new Range(maxLineNumber+1,0,ace_editor.getSession().getLength(),1000000));
-        ace_editor.selection.moveCursorToPosition({row: maxLineNumber-1, column: 1000000});
+        ace_editor.selection.moveCursorToPosition({row: maxLineNumber+1, column: 1000000});
         ace_editor.selection.selectTo(ace_editor.getSession().getLength(),1000000);
         ace_editor.removeLines();
         if(DEBUG) alert("lines programtically removed! In general, this should not happen.  ")
@@ -383,6 +420,13 @@ if (Meteor.isClient) {
 
   function updateTask(state){
     var task_in_creation_id = Session.get("TASK_ID_IN_CREATION");
+
+    if (select_region_first)
+    {
+      alertMessage("Please select a region first.", "danger", 4000);
+      select_region_first = false
+    }
+
     if (task_in_creation_id== null){
       if (DEBUG) alert("task ID null, it should not happen. ");
       return;
@@ -421,6 +465,7 @@ if (Meteor.isClient) {
       }
 
       $(".new_region").removeClass("hidden");
+      $(".escape_region_mode").removeClass("hidden");
       $(this).next('ul').toggle();
       dialog.dialog( "close" );
       //alertMessage("Choose where you will create a new region by pressing one of the buttons.", "info");
@@ -432,6 +477,7 @@ if (Meteor.isClient) {
       dialog.dialog('option', 'position',{of: "#cm_code_editor"});
     }
     // start to add new tasks
+    select_region_first = false;
     updateTask();
 
   }
@@ -445,14 +491,20 @@ if (Meteor.isClient) {
     }
   });
   Template.cm_regions.events({
-
+      "click .escape_region_mode button" : function(event){
+        $(".new_region").addClass("hidden");
+        $(".escape_region_mode").addClass("hidden");
+        $(".tasks_regions").css("pointer-events", "auto");
+        dialog.dialog( "open" );
+        Session.set("REGION_SELECTION", false);
+      },
       "click .new_region button": function (event) {
         var start = parseInt($(event.target).attr("start")),
         end = parseInt($(event.target).attr("end"));
 
         if(DEBUG) console.log("click #new_region button:("+ start + ","+ end+")");
         var region_name = chance.first();
-        console.log("region_name(" + region_name + "):" +  (Regions.findOne({name:region_name})== "undefined"));
+        if(DEBUG)console.log("region_name(" + region_name + "):" +  (Regions.findOne({name:region_name})== "undefined"));
         while(  Regions.findOne({name:region_name})!= undefined){
           region_name = chance.first();
         }
@@ -475,7 +527,8 @@ if (Meteor.isClient) {
         ace_editor.getSession().doc.insertLines(start,["# region " + region_name + " start "]);
 
         $(".new_region").addClass("hidden");
-//        $('.accordion_region').accordion("refresh");
+        $(".escape_region_mode").addClass("hidden");
+
         // insert region and open the dialog again.
         dialog.dialog('option', 'position',{of: "#cm_code_editor"});
         $(".tasks_regions").css("pointer-events", "auto");
@@ -605,10 +658,10 @@ if (Meteor.isClient) {
       if (Session.get("EDIT_MODE")){
         if(DEBUG) console.log(" hahf ");
     //    debugger;
-        Meteor.call('logTask', taskID, title_store, desc_store,deliverable_store ,region_id,"edit_complete");
+        Meteor.call('logTask', taskID, title_store, desc_store,deliverable_store ,region_id,"","edit_complete");
 
       }else{
-        Meteor.call("logTask",  taskID, title_store, desc_store,deliverable_store ,region_id, "create_complete");
+        Meteor.call("logTask",  taskID, title_store, desc_store,deliverable_store ,region_id,"", "create_complete");
       }
 
       return true;
@@ -652,11 +705,14 @@ if (Meteor.isClient) {
                 if(DEBUG) alert(error)
                 else console.error(error);
               }
+              // todo : if cancel button clicked, revert back the db change. sang
+              Meteor.call("logTask",  Session.get("TASK_ID_IN_CREATION"), "", "", "", "","", "cancel_edit_task");
+
             });
           }
           else{
             Meteor.call('deleteTask',Session.get("TASK_ID_IN_CREATION"));
-            Meteor.call("logTask",  Session.get("TASK_ID_IN_CREATION"), "", "", "", "", "Cancel the new task creation");
+            Meteor.call("logTask",  Session.get("TASK_ID_IN_CREATION"), "", "", "", "","", "cancel_create_task");
           }
           dialog.dialog( "close" );
           resetDialog();
@@ -683,16 +739,17 @@ if (Meteor.isClient) {
         alert("task id is null for this button something is wrong. ")
         return;
       }
-      title = $("#cm_dialog_title").val();
-      desc = $("#cm_dialog_desc").val();
-      deliverable = $("#cm_dialog_delverbale").val();
-      region = $("#cm_dialog_region_dropdown_btn").val()
-      Meteor.call("logTask",  "", "", "", "", "", "Start (or Edit) the task");
+
       Meteor.call("lockTask", task_id, Meteor.user().username,"in_progress", function(error, locked_region){
         if (error){
           alert(error);
         }
         else{
+
+          var start = parseInt( $("#"+locked_region).attr("start"));
+          var end = parseInt( $("#"+locked_region).attr("end"));
+          var region_value =   ace_editor.getSession().getLines(start,end-1);
+          Meteor.call("logTask",  task_id, "", "", "", "", region_value,"task_locked");
 
           $(event.target).removeClass("btn-success");
           $(event.target).removeClass("btn-danger");
@@ -718,7 +775,7 @@ if (Meteor.isClient) {
         return;
       }
       if ( confirm('Are you sure you want to delete this task?') ){
-        Meteor.call("logTask",  "", "", "", "", "","Delete");
+        Meteor.call("logTask",  "", "", "", "", "","","Delete");
 
         dialog.dialog( "close" );
         resetDialog();
@@ -743,7 +800,7 @@ if (Meteor.isClient) {
           Session.set("LOCK", true);
           Session.set("MY_LOCKED_TASK", task_id);
 
-          Meteor.call("logTask", task_id, "", "", "", "", "Edit");
+          Meteor.call("logTask", task_id, "", "", "", "", "","task_edit_initiated");
 
 
           if (Session.get("TASK_ID_IN_CREATION") == null){
@@ -777,7 +834,7 @@ if (Meteor.isClient) {
     },
     "click .task_unlock_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      if (task_id == null || Session.get("MY_LOCKED_TASK") == null){
+      if (task_id == null){
         alert("task id is null for this button something is wrong. ")
         return;
       }
@@ -786,7 +843,12 @@ if (Meteor.isClient) {
           alert(error);
         }
         else{
-          Meteor.call("logTask",  task_id, "", "", "", "", "Leave for now (unlock)");
+          // retreive region content
+          var start = parseInt( $("#"+Session.get("MY_LOCKED_REGION")).attr("start"));
+          var end = parseInt( $("#"+Session.get("MY_LOCKED_REGION")).attr("end"));
+          var region_value =   ace_editor.getSession().getLines(start,end-1);
+
+          Meteor.call("logTask",  task_id, "", "", "", "",region_value, "task_unlocked");
 
           $(".blurred").css("background", "");
           $(".blurred").css("border", "");
@@ -807,7 +869,7 @@ if (Meteor.isClient) {
     },
     "click .task_archive_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      Meteor.call("logTask",  task_id, "", "", "", "", "Archive");
+      Meteor.call("logTask",  task_id, "", "", "", "","", "task_archived");
       if (task_id == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -833,7 +895,7 @@ if (Meteor.isClient) {
     ,
     "click .task_unarchive_button": function(event){
       var task_id = $(event.target).attr("task_id");
-      Meteor.call("logTask",  task_id, "", "", "", "", "unarchive");
+      Meteor.call("logTask",  task_id, "", "", "", "","", "task_unarchived");
       if (task_id == null){
         alert("task id is null for this button something is wrong. ")
         return;
@@ -870,7 +932,7 @@ if (Meteor.isClient) {
     },
 
     "click #btn_creat_task": function (event) {
-
+      select_region_first = true;
       if (Meteor.user()== null){
         alertMessage("Sign up please!", "danger")
         return;
@@ -897,6 +959,8 @@ if (Meteor.isClient) {
             alertMessage("Could not issue a new task id. Try this again.");
             dialog.dialog("close");
           } else {
+            Meteor.call("logTask",  result, "","","","","", "create_initiated");
+
             if(DEBUG)console.log("new task id is assigned:" + result);
             Session.set("TASK_ID_IN_CREATION",result);
           }
@@ -967,10 +1031,10 @@ if (Meteor.isClient) {
     },
     "mouseover #run_editor_code": function (event) {
       if(tutorial_run_selection_flag){
-        tutorial_lock_task_flag = !tutorial_lock_task_flag;
-        tutorial_run_selection_msg(tutorial_lock_task_msg, "warning", 4000);
+        tutorial_run_selection_flag = !tutorial_run_selection_flag;
+        alertMessage(tutorial_run_selection_msg, "warning", 4000);
       }else{
-        alertMessage("Pressing this button will run the selected code in the editor. \n It runs the entire code if there's no selection.","info");
+        alertMessage("Pressing this button will run the selected code in the editor. \n It runs the entire code if there's no selection.","info",2000);
       }
      }
   });
@@ -1098,7 +1162,7 @@ scrollTop: $("#run_time_output").get(0).scrollHeight}, 10);
 
     }
 
-    alertMessage("You can only write code by creating and locking a task inside the region. Create or lock a task.", "info", 4000);
+    alertMessage("You can only write code by creating and locking a task inside a region. Create or lock a task.", "info", 4000);
 
     initState = function(){
       if ( Session.get("TASK_ID_IN_CREATION") != null ){
