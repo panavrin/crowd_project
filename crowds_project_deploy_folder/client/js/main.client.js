@@ -200,6 +200,7 @@ if (Meteor.isClient) {
                 if(DEBUG) console.log("cursor in range");
               }
           });
+
           // idea is to make it readonly when selection is outside my locked region
           ace_editor.getSession().selection.on('changeCursor', function(e) {
             if (!Session.get("LOCK"))
@@ -221,9 +222,19 @@ if (Meteor.isClient) {
               if(DEBUG) console.log("cursor in range");
             }
           });
+
+
           ace_editor.on("change", function(e,v,g){
               if (!Session.get("LOCK"))
                 return;
+
+              if (ace_editor.curOp && ace_editor.curOp.command.name) {
+                if (DEBUG) console.log("user change");
+              }
+              else {
+                if (DEBUG)console.log("if this is from someone else's change, you don't have to update regions. ")
+                return;
+              }
 // first let's make sure if the cursor falls into the locked region
               var region_id = Session.get("MY_LOCKED_REGION");
               var start_region_line = parseInt($("#"+region_id).attr("start")),
@@ -233,11 +244,8 @@ if (Meteor.isClient) {
 
               if ( startLine < start_region_line || startLine >=end_region_line)
               {
-                return;
-                if (DEBUG)console.log("This is cursor move due to somebody else. somebody else probably  ");
-                ace_editor.getSession().doc.insertLines(startLine,[""]);
-
-          //      if(DEBUG) alert("this should not happen : Cursor position out of range. ");
+                if (DEBUG)alert("This is cursor move due to somebody else. somebody else probably, but this should have been already filtered by previous if statment.  ");
+                return; // this is other person working on other egion.
               }
 
               var changedLine = endLine - startLine;
@@ -252,16 +260,16 @@ if (Meteor.isClient) {
                 if(DEBUG) alert ("unhandeld change action:" + e.data.action);
               }
               if(DEBUG) console.log (region_id + " changedLine:" + changedLine);
-
-
               if (changedLine == 0)
                 return;
+              regionUpdated = true;
 
-                regionUpdated = true;
               Meteor.call("updateRegionLines", region_id, changedLine, function(error,result){
                 if(error){
                   console.error(error);
                 }
+                if(DEBUG) console.log("updatedRegionLines : " + result);
+
                 setTimeout(updateRegions, 200);
 
               })

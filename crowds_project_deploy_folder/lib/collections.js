@@ -6,7 +6,7 @@ Tasklogs = new Meteor.Collection("logs")
 
 
 
-DEBUG  = false;
+DEBUG  = true;
 Meteor.methods({
 
   removeAll: function(){
